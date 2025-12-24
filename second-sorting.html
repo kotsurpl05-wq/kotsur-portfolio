@@ -1,0 +1,2206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Platform - 2nd Sorting Report</title>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/second_sorting2.css">
+
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <!-- Logo and Back Button -->
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <a href="index.html" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-home"></i>
+                </a>
+                <div class="nav-brand">
+                    <div class="nav-logo">
+                        <i class="fas fa-sort-amount-down"></i>
+                    </div>
+                    <span>Analytics Platform</span>
+                </div>
+            </div>
+
+            <!-- Language Selector -->
+            <div>
+                <select id="languageSelect" class="form-control" style="width: auto; min-width: 120px;">
+                    <option value="en" selected>🇺🇸 English</option>
+                    <option value="pl">🇵🇱 Polski</option>
+                    <option value="ru">🇷🇺 Русский</option>
+                </select>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="second-sorting-container">
+        <!-- Hero Section -->
+        <div class="hero-gradient">
+            <div class="container">
+                <h1>2nd Sorting Report</h1>
+                <p class="text-secondary">Generate detailed second sorting analysis reports</p>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="container" style="margin-top: 2rem;">
+            <!-- Upload Section -->
+            <div class="card mb-4">
+                <h2 class="section-title">
+                    <i class="fas fa-upload"></i>
+                    Upload Files
+                </h2>
+
+                <!-- Two separate upload zones -->
+                <div class="upload-zone-grid">
+                    <!-- Exception Report -->
+                    <div class="upload-zone-report" id="exceptionUploadZone">
+                        <div class="upload-icon">
+                            <i class="fas fa-file-excel text-danger"></i>
+                        </div>
+                        <div class="upload-label" id="exceptionLabel">
+                            Exception Report
+                        </div>
+                        <div class="upload-hint">
+                            Click to browse or drag & drop
+                        </div>
+                        <input type="file" id="exceptionInput" class="hidden" accept=".xlsx,.xls">
+
+                        <div id="exceptionPreview" class="file-preview"></div>
+                    </div>
+
+                    <!-- 3D Wave Report -->
+                    <div class="upload-zone-report" id="threeDUploadZone">
+                        <div class="upload-icon">
+                            <i class="fas fa-file-excel text-primary"></i>
+                        </div>
+                        <div class="upload-label" id="threeDLabel">
+                            3D Wave Report
+                        </div>
+                        <div class="upload-hint">
+                            Click to browse or drag & drop
+                        </div>
+                        <input type="file" id="threeDInput" class="hidden" accept=".xlsx,.xls">
+
+                        <div id="threeDPreview" class="file-preview"></div>
+                    </div>
+                </div>
+
+                <!-- Analysis Parameters -->
+                <div class="analysis-params">
+                    <h3 class="params-title">
+                        <i class="fas fa-cog"></i>
+                        Analysis Parameters
+                    </h3>
+
+                    <div class="params-grid">
+                        <div class="form-group">
+                            <label for="totalSorted">
+                                <i class="fas fa-box"></i>
+                                Total Sorted Units
+                            </label>
+                            <input type="number" id="totalSorted" class="form-control" value="0" min="0" required>
+                            <div class="text-sm text-tertiary">Total units processed</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="dpmoTarget">
+                                <i class="fas fa-bullseye"></i>
+                                DPMO Target
+                            </label>
+                            <input type="number" id="dpmoTarget" class="form-control" value="700" min="1" required>
+                            <div class="text-sm text-tertiary">Quality target (Defects Per Million Opportunities)</div>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <div class="left-buttons">
+                            <button id="clearFilesBtn" class="btn btn-secondary btn-sm" onclick="clearAllFiles()">
+                                <i class="fas fa-trash"></i> Clear All
+                            </button>
+                            <button id="loadSampleBtn" class="btn btn-outline-info btn-sm" onclick="loadSampleData()">
+                                <i class="fas fa-flask"></i> Load Sample Data
+                            </button>
+                        </div>
+
+                        <button id="analyzeBtn" class="btn btn-primary" onclick="startAnalysis()">
+                            <i class="fas fa-play"></i> Analyze
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Section -->
+            <div id="progressSection" class="card mb-4 analysis-progress">
+                <div class="report-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        Analysis in Progress
+                    </h2>
+
+                    <div class="progress-container">
+                        <div class="progress-header">
+                            <span class="text-sm" id="progressStatus">Processing files...</span>
+                            <span class="text-sm" id="progressPercent">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressBar"></div>
+                        </div>
+                    </div>
+
+                    <div id="analysisDetails" class="text-sm text-tertiary">
+                        <i class="fas fa-info-circle"></i>
+                        Analysis may take a few moments...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="resultsSection" class="card results-table" style="display: none;">
+                <!-- NEW STRUCTURE: Header with title and export buttons -->
+                <div class="results-section-header">
+                    <h2 class="section-title" style="margin-bottom: 0;">
+                        <i class="fas fa-chart-bar"></i>
+                        Analysis Results
+                    </h2>
+
+                    <!-- Export buttons moved here -->
+                    <div class="export-buttons-top">
+                        <button class="btn btn-success btn-sm" onclick="exportAllData()">
+                            <i class="fas fa-file-excel"></i> Export Excel
+                        </button>
+                        <button class="btn btn-info btn-sm" onclick="exportToPDF()">
+                            <i class="fas fa-file-pdf"></i> Export PDF
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-layout-wrapper" id="tableLayoutWrapper" style="display: none;">
+                    <div class="table-layout" id="tableLayout" style="display: grid;">
+                        <!-- LEFT COLUMN -->
+                        <div class="table-sidebar left-sidebar">
+                            <!-- Total waves -->
+                            <div class="metric-card-left">
+                                <div class="metric-icon-left">
+                                    <i class="fas fa-wave-square"></i>
+                                </div>
+                                <div class="metric-content-left">
+                                    <div class="metric-label-left">Total Waves</div>
+                                    <div class="metric-value-left" id="totalRecords">0</div>
+                                </div>
+                            </div>
+
+                            <!-- Total errors -->
+                            <div class="metric-card-left">
+                                <div class="metric-icon-left">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <div class="metric-content-left">
+                                    <div class="metric-label-left">Total Exceptions</div>
+                                    <div class="metric-value-left" id="sortedPackages">0</div>
+                                </div>
+                            </div>
+
+                            <!-- NEW METRIC: Total sorted -->
+                            <div class="metric-card-left">
+                                <div class="metric-icon-left">
+                                    <i class="fas fa-boxes"></i>
+                                </div>
+                                <div class="metric-content-left">
+                                    <div class="metric-label-left">Total Sorted</div>
+                                    <div class="metric-value-left" id="totalSortedItems">0</div>
+                                </div>
+                            </div>
+
+                            <!-- DPMO -->
+                            <div class="metric-card-left">
+                                <div class="metric-icon-left">
+                                    <i class="fas fa-bullseye"></i>
+                                </div>
+                                <div class="metric-content-left">
+                                    <div class="metric-label-left">DPMO</div>
+                                    <div class="metric-value-left" id="dpmoValue">0</div>
+                                    <div class="metric-subtext-left">
+                                        Target: <span id="dpmoTargetValue">700</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- DPMO Performance (%) -->
+                            <div class="metric-card-left performance-card-left">
+                                <div class="metric-icon-left">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <div class="metric-content-left">
+                                    <div class="metric-label-left">DPMO Performance</div>
+                                    <div class="metric-value-left" id="dpmoPercent">0%</div>
+                                    <div class="performance-indicator-left">
+                                        <div class="indicator-bar-left"></div>
+                                        <div class="indicator-fill-left" id="performanceBar"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Shift distribution -->
+                            <div class="shift-distribution-card-left">
+                                <div class="card-header-left">
+                                    <i class="fas fa-users"></i>
+                                    <span style="font-weight: 700; font-size: 1rem;">SHIFT DISTRIBUTION</span>
+                                </div>
+                                <div class="shift-stats-left">
+                                    <div class="shift-stats-grid-left">
+                                        <!-- Day Shift -->
+                                        <div class="shift-item-left ds-shift-left">
+                                            <div class="shift-label-left">
+                                                <div class="shift-color-left ds-color-left"></div>
+                                                <span style="font-weight: 600; font-size: 0.9rem;">DAY SHIFT</span>
+                                            </div>
+                                            <div class="shift-values-left">
+                                                <span class="shift-errors-left" id="dsErrors" style="font-weight: 700; font-size: 1rem;">0</span>
+                                                <span class="shift-percent-left" id="dsPercent" style="font-weight: 600; font-size: 0.85rem;">0%</span>
+                                            </div>
+                                            <div class="shift-waves-left" id="dsWaves" style="font-weight: 500; font-size: 0.8rem;">0 waves</div>
+                                        </div>
+
+                                        <!-- Night Shift -->
+                                        <div class="shift-item-left ns-shift-left">
+                                            <div class="shift-label-left">
+                                                <div class="shift-color-left ns-color-left"></div>
+                                                <span style="font-weight: 600; font-size: 0.9rem;">NIGHT SHIFT</span>
+                                            </div>
+                                            <div class="shift-values-left">
+                                                <span class="shift-errors-left" id="nsErrors" style="font-weight: 700; font-size: 1rem;">0</span>
+                                                <span class="shift-percent-left" id="nsPercent" style="font-weight: 600; font-size: 0.85rem;">0%</span>
+                                            </div>
+                                            <div class="shift-waves-left" id="nsWaves" style="font-weight: 500; font-size: 0.8rem;">0 waves</div>
+                                        </div>
+
+                                        <!-- Unknown Shift -->
+                                        <div class="shift-item-left unknown-shift-left">
+                                            <div class="shift-label-left">
+                                                <div class="shift-color-left unknown-color-left"></div>
+                                                <span style="font-weight: 600; font-size: 0.9rem;">UNKNOWN</span>
+                                            </div>
+                                            <div class="shift-values-left">
+                                                <span class="shift-errors-left" id="unknownErrors" style="font-weight: 700; font-size: 1rem;">0</span>
+                                                <span class="shift-percent-left" id="unknownPercent" style="font-weight: 600; font-size: 0.85rem;">0%</span>
+                                            </div>
+                                            <div class="shift-waves-left" id="unknownWaves" style="font-weight: 500; font-size: 0.8rem;">0 waves</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Distribution chart -->
+                                    <div class="shift-chart-left">
+                                        <div class="chart-bars-left">
+                                            <div class="chart-bar-left ds-bar-left" id="dsBar"></div>
+                                            <div class="chart-bar-left ns-bar-left" id="nsBar"></div>
+                                            <div class="chart-bar-left unknown-bar-left" id="unknownBar"></div>
+                                        </div>
+                                        <div class="chart-labels-left">
+                                            <span class="ds-label-left" style="font-weight: 700; font-size: 0.9rem;">DAY</span>
+                                            <span class="ns-label-left" style="font-weight: 700; font-size: 0.8rem;">NIGHT</span>
+                                            <span class="unknown-label-left" style="font-weight: 700; font-size: 0.8rem;">UNK</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CENTER TABLE -->
+                        <div class="table-main" id="tableMainSection">
+                            <div class="table-wrapper" id="tableWrapper">
+                                <div class="table-container-scrollable" id="tableContainer">
+                                    <div class="table-responsive">
+                                        <table class="second-sorting-table-compact" id="resultsTable">
+                                            <thead>
+                                                <tr>
+                                                    <th class="col-wave-compact">
+                                                        Wave
+                                                        <button class="sort-btn-compact" onclick="sortTable('wave', this)">
+                                                            <i class="fas fa-sort"></i>
+                                                        </button>
+                                                    </th>
+                                                    <th class="col-exceptions-compact">
+                                                        Exceptions
+                                                        <button class="sort-btn-compact" onclick="sortTable('exceptions', this)">
+                                                            <i class="fas fa-sort"></i>
+                                                        </button>
+                                                    </th>
+                                                    <th class="col-time-compact">
+                                                        End time
+                                                        <button class="sort-btn-compact" onclick="sortTable('end_time', this)">
+                                                            <i class="fas fa-sort"></i>
+                                                        </button>
+                                                    </th>
+                                                    <th class="col-shift-compact">
+                                                        Shift
+                                                        <button class="sort-btn-compact" onclick="sortTable('shift', this)">
+                                                            <i class="fas fa-sort"></i>
+                                                        </button>
+                                                    </th>
+                                                    <th class="col-actions-compact">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="resultsTableBody">
+                                                <!-- Results will be populated here -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <!-- Expand button OUTSIDE table -->
+                                <button class="expand-btn-outside" id="expandTableBtn" onclick="toggleTableExpand()" title="Show all rows">
+                                    <i class="fas fa-chevron-down"></i> Show all rows
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- PROBLEM WAVE SIDEBAR RIGHT -->
+                        <div class="table-sidebar right-sidebar">
+                            <!-- Worst wave card (simplified) -->
+                            <div class="problem-wave-card" id="problemWaveCard">
+                                <div class="problem-wave-header">
+                                    <div class="problem-wave-header-content">
+                                        <div class="problem-wave-icon">
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                        </div>
+                                        <div>
+                                            <div class="problem-wave-title" style="font-weight: 700; font-size: 1rem;">WORST WAVE</div>
+                                            <div class="problem-wave-subtitle" style="font-size: 0.75rem; opacity: 0.9; margin-top: 2px;">Highest exceptions count</div>
+                                        </div>
+                                    </div>
+                                    <div class="problem-wave-id" id="problemWaveId" style="font-weight: 800; font-size: 1.1rem;">-</div>
+                                </div>
+
+                                <div class="problem-wave-content">
+                                    <div class="problem-wave-metrics">
+                                        <!-- Exceptions -->
+                                        <div class="problem-metric-item exceptions-item">
+                                            <div class="metric-value-large exceptions" id="problemWaveExceptions" style="font-size: 1.6rem; font-weight: 800;">0</div>
+                                            <div class="metric-label-small" style="font-weight: 700; letter-spacing: 0.5px;">EXCEPTIONS</div>
+                                        </div>
+
+                                        <!-- Comparison with average -->
+                                        <div class="problem-metric-item avg-item">
+                                            <div class="metric-value-large" id="problemWaveAvg" style="font-size: 1.4rem; font-weight: 800;">0.0</div>
+                                            <div class="metric-label-small" style="font-weight: 700; letter-spacing: 0.5px;">VS AVERAGE</div>
+                                            <div class="metric-subtext" id="problemWaveAvgDiff" style="font-size: 0.7rem; font-weight: 600; margin-top: 4px;"></div>
+                                        </div>
+
+                                        <!-- Shift -->
+                                        <div class="problem-metric-item shift-item">
+                                            <div class="metric-value-large" id="problemWaveShiftBadge" style="font-size: 1.3rem; font-weight: 800;">?</div>
+                                            <div class="metric-label-small" style="font-weight: 700; letter-spacing: 0.5px;">SHIFT</div>
+                                        </div>
+
+                                        <!-- Full date and time -->
+                                        <div class="problem-metric-item time-item">
+                                            <div class="metric-value-large-time" id="problemWaveTimeFull" style="font-size: 0.9rem; font-weight: 600; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; line-height: 1.2;">-</div>
+                                            <div class="metric-label-small" style="font-weight: 700; letter-spacing: 0.5px;">DATE & TIME</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="problem-wave-actions-simple">
+                                    <button class="problem-wave-btn-simple analyze" onclick="analyzeProblemWave()">
+                                        <i class="fas fa-search"></i> <span style="font-weight: 600;">Deep Analyze</span>
+                                    </button>
+                                    <button class="problem-wave-btn-simple details" onclick="viewProblemWaveDetails()">
+                                        <i class="fas fa-chart-bar"></i> <span style="font-weight: 600;">View Details</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="sidebar-spacer"></div>
+                            <!-- Top 5 worst waves -->
+                            <div class="top-waves-card" id="topWavesCard">
+                                <div class="top-waves-header">
+                                    <div class="header-content">
+                                        <i class="fas fa-fire"></i>
+                                        <h3>Top 5 Worst Waves</h3>
+                                    </div>
+                                    <div class="header-subtitle">Highest exceptions count</div>
+                                </div>
+
+                                <div class="top-waves-list" id="topWavesList">
+                                    <!-- Wave item example -->
+                                    <div class="top-wave-item">
+                                        <div class="wave-rank rank-1">1</div>
+                                        <div class="wave-info">
+                                            <div class="wave-header">
+                                                <span class="wave-id">WAVE-2024-00123</span>
+                                                <span class="wave-exceptions-badge critical">24</span>
+                                            </div>
+                                            <div class="wave-details">
+                                                <span class="wave-time">
+                                                    <i class="far fa-clock"></i> 14:30
+                                                </span>
+                                                <span class="wave-shift-badge ds">DAY</span>
+                                            </div>
+                                            <div class="wave-progress">
+                                                <div class="progress-bar">
+                                                    <div class="progress-fill" style="width: 85%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Other waves... -->
+                                    <div class="empty-top-waves" id="emptyTopWaves">
+                                        <i class="fas fa-wave-square"></i>
+                                        <p>No wave data available</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Overlay for expanded mode -->
+            <div class="table-overlay" id="tableOverlay"></div>
+
+            <!-- Sample Data Info -->
+            <div class="card sample-data-section">
+                <div class="info-content">
+                    <i class="fas fa-info-circle"></i>
+                    <div>
+                        <div class="info-title">
+                            About 2nd Sorting Report
+                        </div>
+                        <div class="info-text">
+                            This module analyzes second sorting operations in logistics centers.
+                            Features include:
+                            <ul>
+                                <li>Exception analysis by wave</li>
+                                <li>Shift distribution analysis</li>
+                                <li>DPMO calculation and reporting</li>
+                                <li>Visual reporting and export</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer style="background: var(--bg-secondary); border-top: 1px solid var(--border-color); padding: 1.5rem 0;">
+        <div class="container">
+            <div class="text-center text-tertiary text-sm">
+                <p>Analytics Platform v2.1.0 | 2nd Sorting Report Module</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Static JavaScript for GitHub Pages -->
+    <script>
+        let exceptionFile = null;
+        let threeDFile = null;
+        let currentSort = {
+            column: 'end_time',
+            direction: 'asc'
+        };
+
+        // Demo data for GitHub Pages
+        const demoWavesData = [
+            {
+                "WaveID": "WAVE-2024-00145",
+                "Errors": 12,
+                "End Time": "2024-03-15 14:30:00",
+                "Shift": "DS"
+            },
+            {
+                "WaveID": "WAVE-2024-00146",
+                "Errors": 3,
+                "End Time": "2024-03-15 15:45:00",
+                "Shift": "DS"
+            },
+            {
+                "WaveID": "WAVE-2024-00147",
+                "Errors": 8,
+                "End Time": "2024-03-15 19:20:00",
+                "Shift": "NS"
+            },
+            {
+                "WaveID": "WAVE-2024-00148",
+                "Errors": 1,
+                "End Time": "2024-03-15 20:10:00",
+                "Shift": "NS"
+            },
+            {
+                "WaveID": "WAVE-2024-00149",
+                "Errors": 5,
+                "End Time": "2024-03-15 21:05:00",
+                "Shift": "NS"
+            },
+            {
+                "WaveID": "WAVE-2024-00150",
+                "Errors": 7,
+                "End Time": "2024-03-16 08:15:00",
+                "Shift": "DS"
+            },
+            {
+                "WaveID": "WAVE-2024-00151",
+                "Errors": 2,
+                "End Time": "2024-03-16 09:30:00",
+                "Shift": "DS"
+            },
+            {
+                "WaveID": "WAVE-2024-00152",
+                "Errors": 9,
+                "End Time": "2024-03-16 10:45:00",
+                "Shift": "DS"
+            },
+            {
+                "WaveID": "WAVE-2024-00153",
+                "Errors": 4,
+                "End Time": "2024-03-16 18:20:00",
+                "Shift": "NS"
+            },
+            {
+                "WaveID": "WAVE-2024-00154",
+                "Errors": 6,
+                "End Time": "2024-03-16 19:35:00",
+                "Shift": "NS"
+            }
+        ];
+
+        // Demo analysis results
+        const demoAnalysisResults = {
+            "success": true,
+            "results": {
+                "summary": {
+                    "total_waves": 10,
+                    "total_errors": 57,
+                    "dpmo": 2850,
+                    "dpmo_percent": 120.5,
+                    "dpmo_target": 700
+                },
+                "shift_stats": {
+                    "DS": {
+                        "errors": 28,
+                        "wave_count": 5,
+                        "percentage": 49.1
+                    },
+                    "NS": {
+                        "errors": 29,
+                        "wave_count": 5,
+                        "percentage": 50.9
+                    },
+                    "unknown": {
+                        "errors": 0,
+                        "wave_count": 0,
+                        "percentage": 0
+                    }
+                },
+                "data": {
+                    "all_waves": demoWavesData
+                }
+            }
+        };
+
+        // Demo sample data
+        const demoSampleData = {
+            "success": true,
+            "results": {
+                "summary": {
+                    "total_waves": 8,
+                    "total_errors": 42,
+                    "dpmo": 2100,
+                    "dpmo_percent": 100.0,
+                    "dpmo_target": 700
+                },
+                "shift_stats": {
+                    "DS": {
+                        "errors": 22,
+                        "wave_count": 4,
+                        "percentage": 52.4
+                    },
+                    "NS": {
+                        "errors": 20,
+                        "wave_count": 4,
+                        "percentage": 47.6
+                    },
+                    "unknown": {
+                        "errors": 0,
+                        "wave_count": 0,
+                        "percentage": 0
+                    }
+                },
+                "data": {
+                    "all_waves": demoWavesData.slice(0, 8)
+                }
+            }
+        };
+
+        function showDemoNotification() {
+            showNotification('Demo Mode', 'This is a static demo for GitHub Pages. File upload and analysis are simulated.', 'info');
+        }
+
+        // Sort table function
+        function sortTable(column, button) {
+            const table = document.getElementById('resultsTable');
+            const tbody = document.getElementById('resultsTableBody');
+            const rows = Array.from(tbody.querySelectorAll('tr:not(.table-active)'));
+
+            // Reset all sort buttons
+            document.querySelectorAll('.sort-btn').forEach(btn => {
+                btn.classList.remove('sorted-asc', 'sorted-desc', 'active');
+            });
+
+            // If clicking same column, change direction
+            if (currentSort.column === column) {
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.column = column;
+                currentSort.direction = 'asc';
+            }
+
+            // Update button icon
+            if (button) {
+                button.classList.add('active', `sorted-${currentSort.direction}`);
+            }
+
+            // Sort rows
+            rows.sort((a, b) => {
+                const aCell = a.querySelector(`td:nth-child(${getColumnIndex(column)})`);
+                const bCell = b.querySelector(`td:nth-child(${getColumnIndex(column)})`);
+
+                const aValue = getCellValue(aCell, column);
+                const bValue = getCellValue(bCell, column);
+
+                let comparison = 0;
+
+                if (column === 'wave') {
+                    const aNum = extractNumber(aValue);
+                    const bNum = extractNumber(bValue);
+                    comparison = aNum - bNum;
+                } else if (column === 'exceptions') {
+                    comparison = aValue - bValue;
+                } else if (column === 'end_time') {
+                    comparison = compareDates(aValue, bValue);
+                } else if (column === 'shift') {
+                    comparison = aValue.localeCompare(bValue);
+                }
+
+                return currentSort.direction === 'asc' ? comparison : -comparison;
+            });
+
+            // Update table
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        function getColumnIndex(column) {
+            const columnMap = {
+                'wave': 1,
+                'exceptions': 2,
+                'end_time': 3,
+                'shift': 4
+            };
+            return columnMap[column] || 1;
+        }
+
+        function getCellValue(cell, column) {
+            if (!cell) return '';
+
+            if (column === 'exceptions') {
+                const badge = cell.querySelector('.badge');
+                return badge ? parseInt(badge.textContent) || 0 : 0;
+            } else if (column === 'end_time') {
+                const timeSpan = cell.querySelector('.text-muted');
+                if (timeSpan) return '';
+                return cell.textContent.trim();
+            } else if (column === 'shift') {
+                const badge = cell.querySelector('.badge');
+                return badge ? badge.textContent.trim() : '';
+            }
+
+            return cell.textContent.trim();
+        }
+
+        function extractNumber(text) {
+            const match = text.match(/\d+/);
+            return match ? parseInt(match[0]) : 0;
+        }
+
+        function compareDates(dateStrA, dateStrB) {
+            if (!dateStrA || dateStrA.includes('No time data')) return 1;
+            if (!dateStrB || dateStrB.includes('No time data')) return -1;
+
+            try {
+                const dateA = new Date(dateStrA.replace(' ', 'T'));
+                const dateB = new Date(dateStrB.replace(' ', 'T'));
+
+                if (isNaN(dateA.getTime())) return 1;
+                if (isNaN(dateB.getTime())) return -1;
+
+                return dateA - dateB;
+            } catch (e) {
+                return dateStrA.localeCompare(dateStrB);
+            }
+        }
+
+        function setupFileUploads() {
+            // Exception Report
+            const exceptionInput = document.getElementById('exceptionInput');
+            const exceptionZone = document.getElementById('exceptionUploadZone');
+
+            exceptionZone.addEventListener('click', () => exceptionInput.click());
+            exceptionInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFileUpload(e.target.files[0], 'exception');
+                }
+            });
+
+            // 3D Wave Report
+            const threeDInput = document.getElementById('threeDInput');
+            const threeDZone = document.getElementById('threeDUploadZone');
+
+            threeDZone.addEventListener('click', () => threeDInput.click());
+            threeDInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFileUpload(e.target.files[0], 'threeD');
+                }
+            });
+
+            // Drag and drop
+            setupDragDrop('exceptionUploadZone', 'exception');
+            setupDragDrop('threeDUploadZone', 'threeD');
+        }
+
+        function setupDragDrop(zoneId, fileType) {
+            const zone = document.getElementById(zoneId);
+
+            zone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                zone.style.borderColor = '#3b82f6';
+                zone.style.backgroundColor = 'rgba(59, 130, 246, 0.05)';
+            });
+
+            zone.addEventListener('dragleave', () => {
+                zone.style.borderColor = '';
+                zone.style.backgroundColor = '';
+            });
+
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.style.borderColor = '';
+                zone.style.backgroundColor = '';
+
+                if (e.dataTransfer.files.length > 0) {
+                    handleFileUpload(e.dataTransfer.files[0], fileType);
+                }
+            });
+        }
+
+        function handleFileUpload(file, type) {
+            showDemoNotification();
+            
+            // Check file type
+            if (!file.name.toLowerCase().endsWith('.xlsx') && !file.name.toLowerCase().endsWith('.xls')) {
+                showNotification('Error', 'Please upload Excel files only (.xlsx, .xls)', 'error');
+                return;
+            }
+
+            // Save file
+            if (type === 'exception') {
+                exceptionFile = file;
+            } else {
+                threeDFile = file;
+            }
+
+            // Show preview
+            showFilePreview(file, type);
+
+            // Update button
+            updateAnalyzeButton();
+
+            // Show notification
+            showNotification('File uploaded', `${file.name} uploaded successfully`, 'success');
+        }
+
+        function showFilePreview(file, type) {
+            const previewId = type === 'exception' ? 'exceptionPreview' : 'threeDPreview';
+            const preview = document.getElementById(previewId);
+            const labelId = type === 'exception' ? 'exceptionLabel' : 'threeDLabel';
+            const label = document.getElementById(labelId);
+
+            // Update label
+            label.innerHTML = `
+                <i class="fas fa-check-circle text-success mr-1"></i>
+                ${type === 'exception' ? 'Exception Report' : '3D Wave Report'} ✓
+            `;
+
+            // Show file preview
+            preview.innerHTML = `
+                <div class="file-preview-item">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-file-excel ${type === 'exception' ? 'text-danger' : 'text-primary'}"></i>
+                            <div>
+                                <div style="font-weight: 500;">${file.name}</div>
+                                <div style="font-size: 12px; color: #666;">
+                                    ${formatFileSize(file.size)} • ${new Date().toLocaleTimeString()}
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-sm btn-outline-danger" onclick="removeFile('${type}')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            preview.style.display = 'block';
+        }
+
+        function removeFile(type) {
+            if (type === 'exception') {
+                exceptionFile = null;
+                document.getElementById('exceptionInput').value = '';
+                document.getElementById('exceptionPreview').innerHTML = '';
+                document.getElementById('exceptionPreview').style.display = 'none';
+                document.getElementById('exceptionLabel').textContent = 'Exception Report';
+            } else {
+                threeDFile = null;
+                document.getElementById('threeDInput').value = '';
+                document.getElementById('threeDPreview').innerHTML = '';
+                document.getElementById('threeDPreview').style.display = 'none';
+                document.getElementById('threeDLabel').textContent = '3D Wave Report';
+            }
+
+            updateAnalyzeButton();
+        }
+
+        function clearAllFiles() {
+            exceptionFile = null;
+            threeDFile = null;
+
+            document.getElementById('exceptionInput').value = '';
+            document.getElementById('threeDInput').value = '';
+
+            document.getElementById('exceptionPreview').innerHTML = '';
+            document.getElementById('threeDPreview').innerHTML = '';
+            document.getElementById('exceptionPreview').style.display = 'none';
+            document.getElementById('threeDPreview').style.display = 'none';
+
+            document.getElementById('exceptionLabel').textContent = 'Exception Report';
+            document.getElementById('threeDLabel').textContent = '3D Wave Report';
+
+            // Hide results section
+            const resultsSection = document.getElementById('resultsSection');
+            if (resultsSection) {
+                resultsSection.classList.remove('visible');
+                resultsSection.style.display = 'none';
+                resultsSection.style.opacity = '0';
+                resultsSection.style.maxHeight = '0';
+                resultsSection.style.overflow = 'hidden';
+            }
+
+            // Hide layout wrapper
+            const tableLayoutWrapper = document.getElementById('tableLayoutWrapper');
+            if (tableLayoutWrapper) {
+                tableLayoutWrapper.style.display = 'none';
+                tableLayoutWrapper.style.opacity = '0';
+            }
+
+            updateAnalyzeButton();
+        }
+
+        function updateAnalyzeButton() {
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const clearBtn = document.getElementById('clearFilesBtn');
+
+            // Enable analyze button only if both files are uploaded
+            analyzeBtn.disabled = !(exceptionFile && threeDFile);
+
+            // Enable clear button if at least one file exists
+            clearBtn.disabled = !(exceptionFile || threeDFile);
+
+            // Change analyze button style
+            if (analyzeBtn.disabled) {
+                analyzeBtn.classList.remove('btn-primary');
+                analyzeBtn.classList.add('btn-secondary');
+            } else {
+                analyzeBtn.classList.remove('btn-secondary');
+                analyzeBtn.classList.add('btn-primary');
+            }
+        }
+
+        async function startAnalysis() {
+            console.log('Starting demo analysis...');
+            showDemoNotification();
+
+            // Check files
+            if (!exceptionFile) {
+                showNotification('Error', 'Please upload Exception Report file', 'error');
+                return;
+            }
+
+            if (!threeDFile) {
+                showNotification('Error', 'Please upload 3D Wave Report file', 'error');
+                return;
+            }
+
+            // Get parameters
+            const totalSortedInput = document.getElementById('totalSorted');
+            const dpmoTargetInput = document.getElementById('dpmoTarget');
+
+            const totalSorted = totalSortedInput ? totalSortedInput.value : '0';
+            const dpmoTarget = dpmoTargetInput ? dpmoTargetInput.value : '700';
+
+            if (!totalSorted || totalSorted <= 0) {
+                showNotification('Error', 'Please enter valid Total Sorted value', 'error');
+                return;
+            }
+
+            if (!dpmoTarget || dpmoTarget <= 0) {
+                showNotification('Error', 'Please enter valid DPMO Target value', 'error');
+                return;
+            }
+
+            // Save target DPMO
+            window.currentDpmoTarget = dpmoTarget;
+
+            // Show progress
+            showProgress(true);
+
+            try {
+                // Simulate API delay
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                // Use demo data
+                displayResults(demoAnalysisResults.results);
+                showNotification('Success', 'Analysis completed successfully! (Demo Mode)', 'success');
+
+            } catch (error) {
+                console.error('Analysis error:', error);
+                showNotification('Error', error.message || 'Analysis failed. Please try again.', 'error');
+            } finally {
+                showProgress(false);
+            }
+        }
+
+        function findProblemWave(results) {
+            if (!results.data?.all_waves || results.data.all_waves.length === 0) {
+                return null;
+            }
+
+            const waves = results.data.all_waves;
+            let problemWave = null;
+            let maxExceptions = -1;
+
+            waves.forEach(wave => {
+                const exceptions = wave.Errors || 0;
+                if (exceptions > maxExceptions) {
+                    maxExceptions = exceptions;
+                    problemWave = wave;
+                }
+            });
+
+            return problemWave;
+        }
+
+        function determineShiftFromTime(timeString) {
+            if (!timeString || timeString === 'NaN' || timeString === 'NaT' || timeString.trim() === '') {
+                return 'unknown';
+            }
+
+            try {
+                let date;
+
+                if (timeString.includes('T')) {
+                    date = new Date(timeString);
+                } else if (timeString.includes(' ')) {
+                    date = new Date(timeString.replace(' ', 'T'));
+                } else if (timeString.includes('/')) {
+                    const parts = timeString.split(' ');
+                    if (parts.length >= 2) {
+                        const datePart = parts[0];
+                        const timePart = parts[1];
+                        const [day, month, year] = datePart.split('/');
+                        date = new Date(`${year}-${month}-${day}T${timePart}`);
+                    }
+                } else {
+                    date = new Date(timeString);
+                }
+
+                if (isNaN(date.getTime())) {
+                    return 'unknown';
+                }
+
+                const hour = date.getHours();
+
+                if (hour >= 6 && hour < 18) {
+                    return 'DS';
+                } else {
+                    return 'NS';
+                }
+            } catch (e) {
+                console.error('Error parsing time:', timeString, e);
+                return 'unknown';
+            }
+        }
+
+        function calculateShiftStatsFromWaves(results) {
+            const waves = results.data?.all_waves || [];
+
+            let stats = {
+                DS: { errors: 0, wave_count: 0 },
+                NS: { errors: 0, wave_count: 0 },
+                unknown: { errors: 0, wave_count: 0 }
+            };
+
+            waves.forEach(wave => {
+                let shift = wave.Shift;
+                const errors = wave.Errors || 0;
+                const time = wave['End Time Display'] || wave['End Time'];
+
+                if (!shift || shift === 'unknown' || shift === '?') {
+                    shift = determineShiftFromTime(time);
+                }
+
+                if (shift === 'DS' || shift === 'Day' || shift === 'DAY') {
+                    stats.DS.errors += errors;
+                    stats.DS.wave_count += 1;
+                } else if (shift === 'NS' || shift === 'Night' || shift === 'NIGHT') {
+                    stats.NS.errors += errors;
+                    stats.NS.wave_count += 1;
+                } else {
+                    stats.unknown.errors += errors;
+                    stats.unknown.wave_count += 1;
+                }
+            });
+
+            const totalErrors = stats.DS.errors + stats.NS.errors + stats.unknown.errors;
+
+            if (totalErrors > 0) {
+                stats.DS.percentage = (stats.DS.errors / totalErrors) * 100;
+                stats.NS.percentage = (stats.NS.errors / totalErrors) * 100;
+                stats.unknown.percentage = (stats.unknown.errors / totalErrors) * 100;
+            } else {
+                stats.DS.percentage = 0;
+                stats.NS.percentage = 0;
+                stats.unknown.percentage = 0;
+            }
+
+            return stats;
+        }
+
+        function updateProblemWaveDisplay(results) {
+            const problemWave = findProblemWave(results);
+            const topWaves = getTopWorstWaves(results, 1);
+            const avgExceptions = calculateAverageExceptions(results);
+
+            const problemWaveCard = document.getElementById('problemWaveCard');
+
+            if (!problemWave && topWaves.length === 0) {
+                problemWaveCard.innerHTML = `
+                    <div class="no-problem-wave" style="padding: 2rem; text-align: center;">
+                        <i class="fas fa-check-circle fa-2x text-success mb-3"></i>
+                        <p style="font-weight: 700; font-size: 1rem; color: var(--text-primary);">NO PROBLEM WAVE</p>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 5px;">All waves performing well</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const displayWave = problemWave || topWaves[0];
+
+            document.getElementById('problemWaveId').textContent = displayWave.WaveID || '-';
+            document.getElementById('problemWaveExceptions').textContent = displayWave.Errors || 0;
+
+            const avgDiff = avgExceptions > 0 ? ((displayWave.Errors || 0) / avgExceptions - 1) * 100 : 0;
+            document.getElementById('problemWaveAvg').textContent = avgExceptions.toFixed(1);
+
+            const avgDiffElement = document.getElementById('problemWaveAvgDiff');
+            if (avgDiffElement) {
+                if (avgDiff > 0) {
+                    avgDiffElement.textContent = `+${avgDiff.toFixed(0)}% above`;
+                    avgDiffElement.style.color = 'var(--color-danger)';
+                    avgDiffElement.style.fontWeight = '700';
+                } else if (avgDiff < 0) {
+                    avgDiffElement.textContent = `${avgDiff.toFixed(0)}% below`;
+                    avgDiffElement.style.color = 'var(--color-success)';
+                    avgDiffElement.style.fontWeight = '700';
+                } else {
+                    avgDiffElement.textContent = 'at average';
+                    avgDiffElement.style.color = 'var(--text-secondary)';
+                }
+            }
+
+            const shiftValue = document.getElementById('problemWaveShiftBadge');
+            const shift = displayWave.Shift || '?';
+
+            if (shift === 'DS') {
+                shiftValue.textContent = 'DS';
+                shiftValue.style.color = 'var(--color-primary)';
+                shiftValue.style.textShadow = '0 1px 2px rgba(14, 165, 233, 0.3)';
+            } else if (shift === 'NS') {
+                shiftValue.textContent = 'NS';
+                shiftValue.style.color = 'var(--color-secondary)';
+                shiftValue.style.textShadow = '0 1px 2px rgba(100, 116, 139, 0.3)';
+            } else {
+                shiftValue.textContent = '?';
+                shiftValue.style.color = 'var(--text-tertiary)';
+            }
+
+            const timeDisplay = displayWave['End Time Display'] || displayWave['End Time'] || '-';
+            const timeElement = document.getElementById('problemWaveTimeFull');
+
+            if (timeDisplay && timeDisplay !== '-' && timeDisplay !== 'NaN' && timeDisplay !== 'NaT' && timeDisplay.toString().trim() !== '') {
+                try {
+                    let date;
+
+                    if (timeDisplay.includes('T')) {
+                        date = new Date(timeDisplay);
+                    } else if (timeDisplay.includes(' ')) {
+                        date = new Date(timeDisplay.replace(' ', 'T'));
+                    } else if (timeDisplay.includes('/')) {
+                        const parts = timeDisplay.split(' ');
+                        if (parts.length >= 2) {
+                            const datePart = parts[0];
+                            const timePart = parts[1];
+                            const [day, month, year] = datePart.split('/');
+                            date = new Date(`${year}-${month}-${day}T${timePart}`);
+                        } else {
+                            date = new Date(timeDisplay);
+                        }
+                    } else {
+                        date = new Date(timeDisplay);
+                    }
+
+                    if (!isNaN(date.getTime())) {
+                        const formattedDate = date.toLocaleDateString('en-GB', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric'
+                        });
+                        const formattedTime = date.toLocaleTimeString('en-GB', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit',
+                            hour12: false
+                        });
+
+                        timeElement.textContent = `${formattedDate} ${formattedTime}`;
+                        timeElement.style.fontSize = '0.95rem';
+                        timeElement.style.fontWeight = '600';
+                        timeElement.title = `Full timestamp: ${timeDisplay}`;
+                    } else {
+                        timeElement.textContent = timeDisplay;
+                        timeElement.title = timeDisplay;
+                    }
+                } catch (e) {
+                    console.error('Error parsing time:', timeDisplay, e);
+                    timeElement.textContent = timeDisplay;
+                    timeElement.title = timeDisplay;
+                }
+            } else {
+                timeElement.textContent = '-';
+                timeElement.title = 'No time data';
+                timeElement.style.color = 'var(--text-tertiary)';
+            }
+
+            window.currentProblemWave = displayWave;
+            updateTopWavesList(results);
+        }
+
+        function calculateAverageExceptions(results) {
+            const waves = results.data?.all_waves || [];
+            if (waves.length === 0) return 0;
+
+            const totalErrors = results.summary?.total_errors || 0;
+            return totalErrors / waves.length;
+        }
+
+        function getTopWorstWaves(results, count = 5) {
+            if (!results.data?.all_waves || results.data.all_waves.length === 0) {
+                return [];
+            }
+
+            const sortedWaves = [...results.data.all_waves].sort((a, b) => {
+                return (b.Errors || 0) - (a.Errors || 0);
+            });
+
+            return sortedWaves.slice(0, count);
+        }
+
+        function updateTopWavesList(results) {
+            const topWavesList = document.getElementById('topWavesList');
+            if (!topWavesList) return;
+
+            const topWaves = getTopWorstWaves(results, 5);
+
+            if (topWaves.length === 0) {
+                topWavesList.innerHTML = `
+                    <div class="empty-top-waves">
+                        <i class="fas fa-wave-square"></i>
+                        <p>No wave data available</p>
+                        <p class="text-sm mt-1">Upload files to see analysis</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            const maxExceptions = Math.max(...topWaves.map(wave => wave.Errors || 0));
+
+            topWaves.forEach((wave, index) => {
+                const rank = index + 1;
+                const exceptions = wave.Errors || 0;
+                const shift = wave.Shift || 'UNKNOWN';
+                const time = wave['End Time Display'] || wave['End Time'] || '-';
+                const waveId = wave.WaveID || `Wave ${index + 1}`;
+
+                let badgeClass = 'wave-exceptions-badge';
+                if (exceptions < 3) {
+                    badgeClass += ' medium';
+                } else if (exceptions <= 8) {
+                    badgeClass += ' high';
+                } else {
+                    badgeClass += ' critical';
+                }
+
+                let shiftClass = 'wave-shift-badge ';
+                if (shift.toUpperCase() === 'DAY' || shift === 'DS') {
+                    shiftClass += 'ds';
+                } else if (shift.toUpperCase() === 'NIGHT' || shift === 'NS') {
+                    shiftClass += 'ns';
+                } else {
+                    shiftClass += 'unknown';
+                }
+
+                let displayTime = time;
+                if (time === 'NaN' || time === 'NaT' || time === '' || time === null || time === undefined) {
+                    displayTime = '-';
+                }
+
+                const displayWaveId = waveId;
+
+                const progressWidth = maxExceptions > 0 ? (exceptions / maxExceptions) * 100 : 0;
+
+                let displayShift = shift;
+                if (shift === 'DS' || shift === 'DAY') displayShift = 'DAY';
+                if (shift === 'NS' || shift === 'NIGHT') displayShift = 'NIGHT';
+                if (shift === '?' || !shift) displayShift = 'UNK';
+
+                html += `
+                    <div class="top-wave-item" onclick="viewWaveDetails('${wave.WaveID}')"
+                         title="Click to view details of ${waveId} - ${exceptions} exceptions at ${displayTime}">
+                        <div class="wave-rank rank-${rank}">${rank}</div>
+                        <div class="wave-info">
+                            <div class="wave-header">
+                                <span class="wave-id-large" title="${waveId}">${displayWaveId}</span>
+                                <span class="${badgeClass} badge-large" title="${exceptions} exceptions">
+                                    ${exceptions}
+                                </span>
+                            </div>
+                            <div class="wave-details-large">
+                                <span class="wave-time-large" title="${time}">
+                                    <i class="far fa-clock"></i> ${displayTime}
+                                </span>
+                                <span class="${shiftClass} shift-large">${displayShift}</span>
+                            </div>
+                            <div class="wave-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: ${progressWidth}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            topWavesList.innerHTML = html;
+        }
+
+        function analyzeProblemWave() {
+            const wave = window.currentProblemWave;
+            if (!wave) return;
+
+            showNotification('Analysis', `Analyzing wave ${wave.WaveID}... (Demo Mode)`, 'info');
+            viewWaveDetails(wave.WaveID);
+        }
+
+        function viewProblemWaveDetails() {
+            const wave = window.currentProblemWave;
+            if (!wave) return;
+
+            viewWaveDetails(wave.WaveID);
+        }
+
+        function showProgress(show) {
+            const progressSection = document.getElementById('progressSection');
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const clearBtn = document.getElementById('clearFilesBtn');
+            const loadSampleBtn = document.getElementById('loadSampleBtn');
+
+            if (!progressSection || !analyzeBtn) {
+                console.error('Progress section or analyze button not found');
+                return;
+            }
+
+            if (show) {
+                progressSection.style.display = 'block';
+                analyzeBtn.disabled = true;
+                if (clearBtn) clearBtn.disabled = true;
+                if (loadSampleBtn) loadSampleBtn.disabled = true;
+
+                simulateProgress();
+            } else {
+                progressSection.style.display = 'none';
+                analyzeBtn.disabled = !(exceptionFile && threeDFile);
+                if (clearBtn) clearBtn.disabled = !(exceptionFile || threeDFile);
+                if (loadSampleBtn) loadSampleBtn.disabled = false;
+
+                if (window.progressInterval) {
+                    clearInterval(window.progressInterval);
+                    window.progressInterval = null;
+                }
+
+                const progressBar = document.getElementById('progressBar');
+                const progressPercent = document.getElementById('progressPercent');
+                const progressStatus = document.getElementById('progressStatus');
+
+                if (progressBar) {
+                    progressBar.style.width = '100%';
+                }
+                if (progressPercent) {
+                    progressPercent.textContent = '100%';
+                }
+                if (progressStatus) {
+                    progressStatus.textContent = 'Analysis complete!';
+                }
+
+                setTimeout(() => {
+                    if (progressBar) {
+                        progressBar.style.width = '0%';
+                    }
+                    if (progressPercent) {
+                        progressPercent.textContent = '0%';
+                    }
+                    if (progressStatus) {
+                        progressStatus.textContent = 'Processing files...';
+                    }
+                }, 1000);
+            }
+        }
+
+        function viewWaveDetails(waveId) {
+            const modalHtml = `
+                <div class="modal-overlay" id="waveDetailsModal" style="z-index: 1050;">
+                    <div class="modal-content" style="max-width: 600px;">
+                        <div class="modal-header">
+                            <h4 class="modal-title">Wave Details: ${waveId} (Demo Mode)</h4>
+                            <button type="button" class="close" onclick="closeModal('waveDetailsModal')">
+                                <span style="color: var(--text-primary);">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div id="waveDetailsContent">
+                                <div class="text-center">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="sr-only">Loading...</span>
+                                    </div>
+                                    <p class="mt-2" style="color: var(--text-primary);">Loading wave details...</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" onclick="closeModal('waveDetailsModal')">Close</button>
+                            <button type="button" class="btn btn-primary" onclick="exportWaveData('${waveId}')">
+                                <i class="fas fa-download mr-1"></i> Export Data
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+            setTimeout(() => {
+                document.getElementById('waveDetailsContent').innerHTML = `
+                    <div class="wave-details" style="color: var(--text-primary);">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="detail-item">
+                                    <strong style="color: var(--text-primary);">Wave ID:</strong>
+                                    <span class="font-mono" style="color: var(--text-primary);">${waveId}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="detail-item">
+                                    <strong style="color: var(--text-primary);">Status:</strong>
+                                    <span class="badge badge-success">Analyzed</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info" style="color: var(--text-primary);">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            This is a static demo for GitHub Pages.
+                            Full package-level analysis is not available in demo mode.
+                        </div>
+
+                        <div class="mt-3">
+                            <h5 style="color: var(--text-primary);">Demo Actions:</h5>
+                            <div class="btn-group" role="group">
+                                <button class="btn btn-sm btn-outline-primary" onclick="showWaveChart('${waveId}')">
+                                    <i class="fas fa-chart-line mr-1"></i> View Trend
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="compareWave('${waveId}')">
+                                    <i class="fas fa-balance-scale mr-1"></i> Compare
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }, 500);
+        }
+
+        function exportWaveData(waveId) {
+            showDemoNotification();
+            
+            const data = {
+                waveId: waveId,
+                timestamp: new Date().toISOString(),
+                exportType: 'single_wave',
+                note: 'Demo data for GitHub Pages'
+            };
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `wave_${waveId}_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showNotification('Export', `Wave ${waveId} data exported (Demo)`, 'success');
+        }
+
+        function exportAllData() {
+            showDemoNotification();
+            
+            const waveData = [];
+            const rows = document.querySelectorAll('#resultsTableBody tr:not(.empty-state)');
+
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length >= 5) {
+                    const wave = {
+                        wave: cells[0].textContent.trim(),
+                        exceptions: parseInt(cells[1].textContent.trim()) || 0,
+                        endTime: cells[2].textContent.trim(),
+                        shift: cells[3].textContent.trim()
+                    };
+                    waveData.push(wave);
+                }
+            });
+
+            const data = {
+                summary: {
+                    totalWaves: waveData.length,
+                    totalExceptions: waveData.reduce((sum, w) => sum + w.exceptions, 0),
+                    exportDate: new Date().toISOString(),
+                    note: 'Demo data for GitHub Pages'
+                },
+                waves: waveData
+            };
+
+            let csv = 'Wave,Exceptions,End Time,Shift\n';
+            waveData.forEach(wave => {
+                csv += `${wave.wave},${wave.exceptions},${wave.endTime},${wave.shift}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `wave_analysis_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showNotification('Export', `${waveData.length} waves exported to CSV (Demo)`, 'success');
+        }
+
+        function exportToPDF() {
+            showDemoNotification();
+            showNotification('Export', 'PDF export not available in demo mode', 'info');
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        function showWaveChart(waveId) {
+            showNotification(`Chart for wave ${waveId} will be displayed in the next update`);
+        }
+
+        function compareWave(waveId) {
+            showNotification(`Comparison feature for wave ${waveId} coming soon`);
+        }
+
+        function toggleTableExpand() {
+            const tableContainer = document.getElementById('tableContainer');
+            const expandBtn = document.getElementById('expandTableBtn');
+
+            if (!tableContainer || !expandBtn) return;
+
+            if (tableContainer.classList.contains('expanded')) {
+                tableContainer.classList.remove('expanded');
+                tableContainer.style.maxHeight = '500px';
+
+                expandBtn.innerHTML = '<i class="fas fa-chevron-down"></i> Show all rows';
+                expandBtn.classList.remove('expanded');
+                expandBtn.title = 'Show all rows';
+            } else {
+                tableContainer.classList.add('expanded');
+                tableContainer.style.maxHeight = 'none';
+
+                expandBtn.innerHTML = '<i class="fas fa-chevron-up"></i> Collapse rows';
+                expandBtn.classList.add('expanded');
+                expandBtn.title = 'Collapse rows';
+            }
+        }
+
+        function createTableOverlay() {
+            const overlay = document.createElement('div');
+            overlay.className = 'table-overlay';
+            overlay.id = 'tableOverlay';
+            overlay.addEventListener('click', function() {
+                toggleTableExpand();
+            });
+            document.body.appendChild(overlay);
+            return overlay;
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const tableContainer = document.getElementById('tableContainer');
+                if (tableContainer && tableContainer.classList.contains('expanded')) {
+                    toggleTableExpand();
+                }
+            }
+        });
+
+        function updateSummarySafely(results) {
+            const elements = {
+                totalRecords: document.getElementById('totalRecords'),
+                sortedPackages: document.getElementById('sortedPackages'),
+                totalSortedItems: document.getElementById('totalSortedItems'),
+                dpmoValue: document.getElementById('dpmoValue'),
+                dpmoPercent: document.getElementById('dpmoPercent'),
+                dpmoTargetValue: document.getElementById('dpmoTargetValue'),
+                performanceBar: document.getElementById('performanceBar'),
+                dsErrors: document.getElementById('dsErrors'),
+                nsErrors: document.getElementById('nsErrors'),
+                unknownErrors: document.getElementById('unknownErrors'),
+                dsPercent: document.getElementById('dsPercent'),
+                nsPercent: document.getElementById('nsPercent'),
+                unknownPercent: document.getElementById('unknownPercent'),
+                dsWaves: document.getElementById('dsWaves'),
+                nsWaves: document.getElementById('nsWaves'),
+                unknownWaves: document.getElementById('unknownWaves'),
+                wavesWithErrors: document.getElementById('wavesWithErrors'),
+                avgExceptions: document.getElementById('avgExceptions'),
+                sortedPerWave: document.getElementById('sortedPerWave')
+            };
+
+            const summary = results.summary || {};
+            const shiftStats = results.shift_stats || {};
+            const data = results.data || {};
+            const allWaves = data.all_waves || [];
+
+            const totalSortedInput = document.getElementById('totalSorted');
+            let totalSortedValue = 0;
+
+            if (totalSortedInput) {
+                totalSortedValue = parseInt(totalSortedInput.value) || 5000;
+            }
+
+            const totalWaves = summary.total_waves || allWaves.length || 0;
+            const avgPerWave = totalWaves > 0 ? Math.round(totalSortedValue / totalWaves) : 0;
+
+            if (elements.totalSortedItems) {
+                elements.totalSortedItems.textContent = totalSortedValue.toLocaleString();
+            }
+
+            if (elements.sortedPerWave) {
+                elements.sortedPerWave.textContent = `Avg: ${avgPerWave.toLocaleString()}/wave`;
+            }
+
+            if (elements.totalRecords) {
+                elements.totalRecords.textContent = totalWaves;
+            }
+
+            if (elements.sortedPackages) {
+                elements.sortedPackages.textContent = summary.total_errors || 0;
+            }
+
+            if (elements.dpmoValue) {
+                elements.dpmoValue.textContent = summary.dpmo || 0;
+            }
+
+            if (elements.dpmoPercent) {
+                const percent = summary.dpmo_percent || 0;
+                elements.dpmoPercent.textContent = percent.toFixed(1) + '%';
+                elements.dpmoPercent.style.color = percent > 100 ? '#ef4444' :
+                                                  percent > 80 ? '#f59e0b' : '#10b981';
+            }
+
+            if (elements.dpmoTargetValue) {
+                elements.dpmoTargetValue.textContent = summary.dpmo_target || window.currentDpmoTarget || 700;
+            }
+
+            if (elements.performanceBar) {
+                const percent = Math.min(summary.dpmo_percent || 0, 120);
+                elements.performanceBar.style.width = percent + '%';
+                elements.performanceBar.style.background = percent > 100 ? 'linear-gradient(90deg, #ef4444, #dc2626)' :
+                                                           percent > 80 ? 'linear-gradient(90deg, #f59e0b, #d97706)' :
+                                                           'linear-gradient(90deg, #10b981, #059669)';
+            }
+
+            if (elements.dsErrors) {
+                const dsErrors = shiftStats.DS?.errors || 0;
+                elements.dsErrors.textContent = dsErrors;
+            }
+
+            if (elements.nsErrors) {
+                const nsErrors = shiftStats.NS?.errors || 0;
+                elements.nsErrors.textContent = nsErrors;
+            }
+
+            if (elements.unknownErrors) {
+                const unknownErrors = shiftStats.unknown?.errors ||
+                                     (summary.total_errors || 0) -
+                                     ((shiftStats.DS?.errors || 0) + (shiftStats.NS?.errors || 0));
+                elements.unknownErrors.textContent = unknownErrors;
+            }
+
+            if (elements.dsPercent) {
+                const dsPercent = shiftStats.DS?.percentage || 0;
+                elements.dsPercent.textContent = dsPercent.toFixed(1) + '%';
+            }
+
+            if (elements.nsPercent) {
+                const nsPercent = shiftStats.NS?.percentage || 0;
+                elements.nsPercent.textContent = nsPercent.toFixed(1) + '%';
+            }
+
+            if (elements.unknownPercent) {
+                const dsPercent = shiftStats.DS?.percentage || 0;
+                const nsPercent = shiftStats.NS?.percentage || 0;
+                const unknownPercent = Math.max(0, 100 - dsPercent - nsPercent);
+                elements.unknownPercent.textContent = unknownPercent.toFixed(1) + '%';
+            }
+
+            if (elements.dsWaves) {
+                const dsWaves = shiftStats.DS?.wave_count || 0;
+                elements.dsWaves.textContent = `${dsWaves} wave${dsWaves !== 1 ? 's' : ''}`;
+            }
+
+            if (elements.nsWaves) {
+                const nsWaves = shiftStats.NS?.wave_count || 0;
+                elements.nsWaves.textContent = `${nsWaves} wave${nsWaves !== 1 ? 's' : ''}`;
+            }
+
+            if (elements.unknownWaves) {
+                const dsWaves = shiftStats.DS?.wave_count || 0;
+                const nsWaves = shiftStats.NS?.wave_count || 0;
+                const totalWavesCount = summary.total_waves || allWaves.length || 0;
+                const unknownWaves = Math.max(0, totalWavesCount - dsWaves - nsWaves);
+                elements.unknownWaves.textContent = `${unknownWaves} wave${unknownWaves !== 1 ? 's' : ''}`;
+            }
+
+            if (elements.wavesWithErrors) {
+                const wavesWithErrors = allWaves.filter(wave => (wave.Errors || 0) > 0).length;
+                const percentage = totalWaves > 0 ? ((wavesWithErrors / totalWaves) * 100) : 0;
+                elements.wavesWithErrors.textContent = `${wavesWithErrors} with errors (${percentage.toFixed(1)}%)`;
+            }
+
+            if (elements.avgExceptions) {
+                const totalErrors = summary.total_errors || 0;
+                const avg = totalWaves > 0 ? (totalErrors / totalWaves).toFixed(1) : '0.0';
+                elements.avgExceptions.textContent = `Avg: ${avg}/wave`;
+            }
+
+            updateShiftBars(results);
+        }
+
+        function setupTotalSortedLiveUpdate() {
+            const totalSortedInput = document.getElementById('totalSorted');
+            const totalSortedItems = document.getElementById('totalSortedItems');
+            const sortedPerWave = document.getElementById('sortedPerWave');
+
+            if (totalSortedInput && totalSortedItems && sortedPerWave) {
+                totalSortedInput.addEventListener('input', function() {
+                    const value = parseInt(this.value) || 0;
+                    totalSortedItems.textContent = value.toLocaleString();
+
+                    const resultsSection = document.getElementById('resultsSection');
+                    if (resultsSection && resultsSection.style.display !== 'none') {
+                        const totalWaves = parseInt(document.getElementById('totalRecords').textContent) || 0;
+                        const avgPerWave = totalWaves > 0 ? Math.round(value / totalWaves) : 0;
+                        sortedPerWave.textContent = `Avg: ${avgPerWave.toLocaleString()}/wave`;
+                    }
+                });
+            }
+        }
+
+        function updateShiftBars(results) {
+            const shiftStats = results.shift_stats || {};
+            const dsPercentage = shiftStats.DS?.percentage || 0;
+            const nsPercentage = shiftStats.NS?.percentage || 0;
+            const unknownPercentage = 100 - dsPercentage - nsPercentage;
+
+            const dsBar = document.getElementById('dsBar');
+            const nsBar = document.getElementById('nsBar');
+            const unknownBar = document.getElementById('unknownBar');
+
+            if (dsBar) dsBar.style.width = dsPercentage + '%';
+            if (nsBar) nsBar.style.width = nsPercentage + '%';
+            if (unknownBar) unknownBar.style.width = unknownPercentage + '%';
+        }
+
+        function updateTableSafely(results) {
+            const tbody = document.getElementById('resultsTableBody');
+            if (!tbody) return;
+
+            tbody.innerHTML = '';
+
+            if (results.data?.all_waves && results.data.all_waves.length > 0) {
+                results.data.all_waves.forEach(wave => {
+                    const row = document.createElement('tr');
+
+                    const exceptions = wave.Errors || 0;
+                    const shift = wave.Shift || '?';
+
+                    let badgeClass = 'exceptions-badge';
+                    if (exceptions < 3) {
+                        badgeClass += ' green';
+                    } else if (exceptions <= 5) {
+                        badgeClass += ' yellow';
+                    } else {
+                        badgeClass += ' red';
+                    }
+
+                    let shiftClass = 'shift-badge ';
+                    let shiftText = shift;
+
+                    const shiftUpper = shift.toUpperCase();
+                    if (shiftUpper === 'DAY' || shiftUpper === 'DS') {
+                        shiftClass += 'ds';
+                        shiftText = 'DAY';
+                    } else if (shiftUpper === 'NIGHT' || shiftUpper === 'NS') {
+                        shiftClass += 'ns';
+                        shiftText = 'NIGHT';
+                    } else {
+                        shiftClass += 'unknown';
+                        shiftText = 'UNK';
+                    }
+
+                    let endTimeDisplay = wave['End Time Display'] || wave['End Time'] || '';
+                    if (!endTimeDisplay ||
+                        endTimeDisplay === 'NaN' ||
+                        endTimeDisplay === 'NaT' ||
+                        endTimeDisplay.toString().trim() === '') {
+                        endTimeDisplay = '<span class="text-muted">-</span>';
+                    }
+
+                    row.innerHTML = `
+                        <td class="wave-cell">
+                            <span class="font-mono fw-semibold">${wave.WaveID || ''}</span>
+                        </td>
+                        <td class="exceptions-cell">
+                            <span class="${badgeClass}">${exceptions}</span>
+                        </td>
+                        <td class="time-cell" title="${wave['End Time Display'] || wave['End Time'] || ''}">
+                            ${endTimeDisplay}
+                        </td>
+                        <td class="shift-cell">
+                            <span class="${shiftClass}" title="${shift} Shift">${shiftText}</span>
+                        </td>
+                        <td class="actions-cell">
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button class="btn-premium view" title="View Details" onclick="viewWaveDetails(this)">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn-premium edit" title="Edit Wave" onclick="editWave(this)">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+
+                window.currentResults = results;
+            } else {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center py-4">
+                            <div class="empty-state">
+                                <i class="fas fa-inbox fa-2x text-muted mb-3"></i>
+                                <p class="text-muted small mb-0">No wave data found</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        function autoExpandIfNeeded() {
+            const tableContainer = document.getElementById('tableContainer');
+            const tbody = document.getElementById('resultsTableBody');
+
+            if (!tableContainer || !tbody) return;
+
+            const rows = tbody.querySelectorAll('tr');
+            if (rows.length > 15) {
+                toggleTableExpand();
+            }
+        }
+
+        function displayResults(results) {
+            console.log('Displaying results:', results);
+
+            results.shift_stats = calculateShiftStatsFromWaves(results);
+
+            if (results.data?.all_waves) {
+                results.data.all_waves = results.data.all_waves.map(wave => {
+                    const time = wave['End Time Display'] || wave['End Time'];
+                    if (!wave.Shift || wave.Shift === 'unknown' || wave.Shift === '?') {
+                        wave.Shift = determineShiftFromTime(time);
+                    }
+                    return wave;
+                });
+            }
+
+            const resultsSection = document.getElementById('resultsSection');
+            const tableLayoutWrapper = document.getElementById('tableLayoutWrapper');
+            const tableLayout = document.getElementById('tableLayout');
+
+            if (resultsSection) {
+                resultsSection.style.display = 'block';
+                resultsSection.style.opacity = '1';
+                resultsSection.style.visibility = 'visible';
+                resultsSection.style.maxHeight = 'none';
+                resultsSection.style.overflow = 'visible';
+
+                resultsSection.classList.add('visible');
+            }
+
+            const allElements = resultsSection.querySelectorAll('*');
+            allElements.forEach(el => {
+                if (el.style) {
+                    el.style.display = '';
+                    el.style.visibility = '';
+                    el.style.opacity = '';
+                    el.style.maxHeight = '';
+                    el.style.height = '';
+                    el.style.overflow = '';
+                }
+            });
+
+            if (tableLayoutWrapper) {
+                tableLayoutWrapper.style.display = 'block';
+                tableLayoutWrapper.style.visibility = 'visible';
+                tableLayoutWrapper.style.opacity = '1';
+            }
+
+            if (tableLayout) {
+                tableLayout.style.display = 'grid';
+                tableLayout.style.visibility = 'visible';
+                tableLayout.style.opacity = '1';
+            }
+
+            window.currentResults = results;
+
+            updateSummarySafely(results);
+            updateTableSafely(results);
+            updateProblemWaveDisplay(results);
+            updateShiftBars(results);
+
+            setTimeout(() => {
+                const timeSortBtn = document.querySelector('th:nth-child(3) .sort-btn-compact');
+                if (timeSortBtn) {
+                    sortTable('end_time', timeSortBtn);
+                }
+            }, 100);
+
+            setTimeout(() => {
+                if (resultsSection) {
+                    resultsSection.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+
+                autoExpandIfNeeded();
+            }, 500);
+
+            updateResultsHeader(results);
+            showShiftWarningIfNeeded(results);
+        }
+
+        function updateResultsHeader(results) {
+            const resultsHeader = document.querySelector('#resultsSection h2');
+            if (resultsHeader) {
+                resultsHeader.innerHTML = `
+                    <i class="fas fa-chart-bar" style="color: var(--success);"></i>
+                    Analysis Results: ${results.summary?.total_waves || 0} waves, ${results.summary?.total_errors || 0} exceptions
+                `;
+            }
+        }
+
+        function showShiftWarningIfNeeded(results) {
+            if (results.shift_stats?.DS?.percentage === 0 && results.shift_stats?.NS?.percentage === 0) {
+                const resultsSection = document.getElementById('resultsSection');
+                if (resultsSection) {
+                    const shiftInfo = document.createElement('div');
+                    shiftInfo.className = 'alert alert-warning mt-3';
+                    shiftInfo.innerHTML = `
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        <strong>Note:</strong> All waves have unknown shift information.
+                        Check that the "End time" column in 3D Wave Report contains valid time data.
+                    `;
+                    resultsSection.querySelector('.report-section').appendChild(shiftInfo);
+                }
+            }
+        }
+
+        async function loadSampleData() {
+            showProgress(true);
+
+            try {
+                // Simulate API delay
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                displayResults(demoSampleData.results);
+                showNotification('Info', 'Sample data loaded (Demo Mode)', 'info');
+            } catch (error) {
+                showNotification('Error', 'Failed to load sample data', 'error');
+            } finally {
+                showProgress(false);
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+
+        function showNotification(title, message, type = 'info') {
+            const oldNotifications = document.querySelectorAll('.custom-notification');
+            oldNotifications.forEach(n => n.remove());
+
+            const notification = document.createElement('div');
+            notification.className = `custom-notification notification-${type}`;
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' :
+                                     type === 'error' ? 'fa-exclamation-circle' :
+                                     type === 'warning' ? 'fa-exclamation-triangle' :
+                                     'fa-info-circle'}"></i>
+                    <div class="notification-text">
+                        <strong>${title}</strong>
+                        <span>${message}</span>
+                    </div>
+                    <button class="notification-close" onclick="this.parentElement.parentElement.remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+
+            if (!document.querySelector('#notification-styles')) {
+                const style = document.createElement('style');
+                style.id = 'notification-styles';
+                style.textContent = `
+                    .custom-notification {
+                        position: fixed;
+                        top: 80px;
+                        right: 20px;
+                        min-width: 300px;
+                        max-width: 400px;
+                        background: var(--bg-secondary);
+                        border-left: 4px solid;
+                        border-radius: 8px;
+                        box-shadow: var(--shadow-lg);
+                        z-index: 9999;
+                        animation: slideInRight 0.3s ease;
+                    }
+                    .custom-notification.notification-success {
+                        border-left-color: var(--color-success);
+                    }
+                    .custom-notification.notification-error {
+                        border-left-color: var(--color-danger);
+                    }
+                    .custom-notification.notification-warning {
+                        border-left-color: var(--color-warning);
+                    }
+                    .custom-notification.notification-info {
+                        border-left-color: var(--color-primary);
+                    }
+                    .notification-content {
+                        padding: 1rem;
+                        display: flex;
+                        align-items: flex-start;
+                        gap: 12px;
+                    }
+                    .notification-content i {
+                        font-size: 1.2rem;
+                        margin-top: 2px;
+                    }
+                    .notification-content i.fa-check-circle {
+                        color: var(--color-success);
+                    }
+                    .notification-content i.fa-exclamation-circle {
+                        color: var(--color-danger);
+                    }
+                    .notification-content i.fa-exclamation-triangle {
+                        color: var(--color-warning);
+                    }
+                    .notification-content i.fa-info-circle {
+                        color: var(--color-primary);
+                    }
+                    .notification-text {
+                        flex: 1;
+                    }
+                    .notification-text strong {
+                        display: block;
+                        color: var(--text-primary);
+                        margin-bottom: 4px;
+                    }
+                    .notification-text span {
+                        color: var(--text-secondary);
+                        font-size: 0.9rem;
+                        display: block;
+                    }
+                    .notification-close {
+                        background: none;
+                        border: none;
+                        color: var(--text-tertiary);
+                        cursor: pointer;
+                        padding: 4px;
+                        font-size: 0.9rem;
+                    }
+                    .notification-close:hover {
+                        color: var(--text-primary);
+                    }
+                    @keyframes slideInRight {
+                        from { transform: translateX(100%); opacity: 0; }
+                        to { transform: translateX(0); opacity: 1; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+
+        function simulateProgress() {
+            if (window.progressInterval) {
+                clearInterval(window.progressInterval);
+            }
+
+            const progressBar = document.getElementById('progressBar');
+            const progressPercent = document.getElementById('progressPercent');
+            const progressStatus = document.getElementById('progressStatus');
+
+            if (!progressBar || !progressPercent || !progressStatus) {
+                console.error('Progress elements not found');
+                return;
+            }
+
+            let progress = 0;
+            const steps = ['Processing Exception Report...', 'Analyzing 3D Wave Report...',
+                          'Calculating DPMO...', 'Generating Charts...', 'Finalizing...'];
+
+            window.progressInterval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 100) progress = 100;
+
+                progressBar.style.width = progress + '%';
+                progressPercent.textContent = Math.round(progress) + '%';
+
+                const stepIndex = Math.min(Math.floor(progress / 20), steps.length - 1);
+                progressStatus.textContent = steps[stepIndex];
+
+                if (progress >= 100) {
+                    clearInterval(window.progressInterval);
+                    progressStatus.textContent = 'Analysis complete!';
+
+                    setTimeout(() => {
+                        if (progressBar) {
+                            progressBar.style.width = '0%';
+                        }
+                        if (progressPercent) {
+                            progressPercent.textContent = '0%';
+                        }
+                        if (progressStatus) {
+                            progressStatus.textContent = 'Processing files...';
+                        }
+                    }, 500);
+                }
+            }, 200);
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            setupFileUploads();
+            updateAnalyzeButton();
+            setupTotalSortedLiveUpdate();
+
+            const languageSelect = document.getElementById('languageSelect');
+            const layoutWrapper = document.getElementById('tableLayoutWrapper');
+
+            if (layoutWrapper) {
+                layoutWrapper.style.maxHeight = '600px';
+                layoutWrapper.style.overflow = 'hidden';
+            }
+
+            if (languageSelect) {
+                languageSelect.value = 'en';
+                languageSelect.addEventListener('change', function() {
+                    const newLang = this.value;
+                    showNotification('Language', `Language changed to ${newLang} (demo mode)`, 'info');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

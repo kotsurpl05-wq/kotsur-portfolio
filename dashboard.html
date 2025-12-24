@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Platform - Overdue Analysis</title>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles2.css">
+    <style>
+        /* Навигационные кнопки Overdue */
+        .overdue-nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #334155;
+        }
+
+        .back-to-main-btn {
+            position: absolute;
+            top: 80px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        @media (max-width: 768px) {
+            .back-to-main-btn {
+                position: relative;
+                top: 0;
+                right: 0;
+                margin-bottom: 1rem;
+            }
+            
+            .overdue-nav-buttons {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+
+        /* CSS переменные для совместимости */
+        :root {
+            --primary: #0ea5e9;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --info: #0ea5e9;
+            --bg-secondary: rgba(30, 41, 59, 0.7);
+            --bg-tertiary: rgba(30, 41, 59, 0.5);
+            --border-color: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-tertiary: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <!-- Logo and Back Button -->
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <a href="index.html" class="btn btn-outline-secondary btn-sm" title="Back to Main Menu">
+                    <i class="fas fa-home"></i>
+                </a>
+                <div class="nav-brand">
+                    <div class="nav-logo">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <span>Analytics Platform</span>
+                </div>
+            </div>
+
+            <!-- Navigation Menu -->
+            <div class="nav-menu">
+                <a href="dashboard.html" class="nav-link active">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="blacklist.html" class="nav-link">
+                    <i class="fas fa-ban"></i>
+                    <span>Blacklist</span>
+                </a>
+                <a href="history.html" class="nav-link">
+                    <i class="fas fa-history"></i>
+                    <span>History</span>
+                </a>
+            </div>
+
+            <!-- Language Selector -->
+            <div>
+                <select id="languageSelect" class="form-control" style="width: auto; min-width: 120px;">
+                    <option value="en">🇺🇸 English</option>
+                    <option value="pl">🇵🇱 Polski</option>
+                    <option value="ru">🇷🇺 Русский</option>
+                </select>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="table-container">
+        <!-- Hero Section -->
+        <div class="hero-gradient">
+            <div class="container">
+                <h1>Overdue Analysis</h1>
+                <p class="text-secondary">Tracking and analysis of overdue packages</p>
+            </div>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div class="container" style="padding: 2rem 0;">
+            <!-- Stats Overview -->
+            <div class="mb-4">
+                <h2 style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+                    <i class="fas fa-chart-bar" style="color: #0ea5e9;"></i>
+                    Dashboard
+                </h2>
+
+                <div class="grid grid-cols-4 gap-3 mb-4">
+                    <div class="stat-card fade-in">
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-value" id="totalAnalyses">24</div>
+                        <div class="stat-label">Total Analyses</div>
+                    </div>
+
+                    <div class="stat-card fade-in">
+                        <div class="stat-icon" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">
+                            <i class="fas fa-ban"></i>
+                        </div>
+                        <div class="stat-value" id="blacklistCount">18</div>
+                        <div class="stat-label">Blacklisted</div>
+                    </div>
+
+                    <div class="stat-card fade-in">
+                        <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="stat-value" id="activeStatus">Ready</div>
+                        <div class="stat-label">Active Status</div>
+                    </div>
+
+                    <div class="stat-card fade-in">
+                        <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-value">98.5%</div>
+                        <div class="stat-label">Success Rate</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- File Upload Section -->
+            <div class="card mb-4">
+                <h3 style="margin-bottom: 1.5rem; color: #f1f5f9;">
+                    <i class="fas fa-upload mr-2"></i>Upload Files for Analysis
+                </h3>
+
+                <!-- Upload Container -->
+                <div class="upload-container">
+                    <!-- Finished Abnormal -->
+                    <div class="upload-zone" id="finishedAbnZone">
+                        <input type="file" id="finishedAbnFile" class="hidden" accept=".xlsx,.xls">
+                        <div class="upload-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="upload-label">Finished Abnormal</div>
+                        <div class="upload-hint">Upload completed abnormal file</div>
+
+                        <div class="file-list-container">
+                            <div id="finishedAbnPreview" class="file-list"></div>
+                        </div>
+
+                        <div id="finishedAbnCount" class="file-count hidden">0</div>
+                    </div>
+
+                    <!-- Problematic -->
+                    <div class="upload-zone" id="problematicZone">
+                        <input type="file" id="problematicFile" class="hidden" accept=".xlsx,.xls">
+                        <div class="upload-icon">
+                            <i class="fas fa-bug"></i>
+                        </div>
+                        <div class="upload-label">Problematic</div>
+                        <div class="upload-hint">Upload problematic file</div>
+
+                        <div class="file-list-container">
+                            <div id="problematicPreview" class="file-list"></div>
+                        </div>
+
+                        <div id="problematicCount" class="file-count hidden">0</div>
+                    </div>
+
+                    <!-- Normal Files -->
+                    <div class="upload-zone" id="normalFilesZone">
+                        <input type="file" id="normalFiles" class="hidden" accept=".xlsx,.xls" multiple>
+                        <div class="upload-icon">
+                            <i class="fas fa-folder-open"></i>
+                        </div>
+                        <div class="upload-label">Normal Files</div>
+                        <div class="upload-hint">Upload multiple normal files</div>
+
+                        <div class="file-list-container">
+                            <div id="normalFilesPreview" class="file-list"></div>
+                        </div>
+
+                        <div id="normalFilesCount" class="file-count hidden">0</div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button id="analyzeBtn" class="btn btn-primary btn-lg" onclick="analyzeFilesDemo()">
+                        <i class="fas fa-play-circle mr-2"></i>
+                        Start Analysis (Demo)
+                    </button>
+
+                    <button class="btn btn-secondary" onclick="clearAllFiles()">
+                        <i class="fas fa-trash mr-2"></i>
+                        Clear All
+                    </button>
+
+                    <div class="loading hidden" id="loadingState">
+                        <div class="loading-spinner"></div>
+                        <span>Processing...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- History Chart Section -->
+            <div class="card mb-4">
+                <div class="results-header">
+                    <h2 style="display: flex; align-items: center; gap: 1rem; margin: 0;">
+                        <i class="fas fa-chart-line" style="color: #0ea5e9;"></i>
+                        Analysis History
+                    </h2>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn btn-success" onclick="refreshChart()">
+                            <i class="fas fa-sync-alt mr-2"></i>
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Chart Container -->
+                <div class="chart-wrapper">
+                    <canvas id="historyChart"></canvas>
+                </div>
+
+                <!-- Chart Legend -->
+                <div style="display: flex; justify-content: center; gap: 2rem; margin-top: 1rem;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <div style="width: 12px; height: 12px; background: #8b5cf6; border-radius: 50%;"></div>
+                        <span class="text-tertiary">Package Volume</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="resultsSection" class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h2 style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fas fa-chart-pie" style="color: #0ea5e9;"></i>
+                        Demo Results
+                    </h2>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn btn-success btn-sm" onclick="exportDemoResults()">
+                            <i class="fas fa-file-excel mr-1"></i> Export Demo
+                        </button>
+                    </div>
+                </div>
+
+                <div id="resultsStats" style="background: rgba(30, 41, 59, 0.7); padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border-left: 4px solid #0ea5e9;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 500; color: #f1f5f9; margin-bottom: 0.25rem;">
+                                <i class="fas fa-chart-bar mr-1"></i>
+                                Demo Summary
+                            </div>
+                            <div style="font-size: 0.875rem; color: #cbd5e1;">
+                                <span id="totalCategories">6</span> categories •
+                                <span id="totalPackages">1,847</span> packages •
+                                <span id="totalAbnormal">124</span> abnormal
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Package Volume</th>
+                                <th>After Abnormal</th>
+                                <th>Oldest Package</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultsTableBody">
+                            <!-- Demo results -->
+                            <tr class="fade-in">
+                                <td>
+                                    <div style="display: flex; align-items: center;">
+                                        <div style="width: 12px; height: 12px; background: #0ea5e9; border-radius: 50%; margin-right: 0.5rem;"></div>
+                                        <span style="font-weight: 500;">Single→30h</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="font-weight: 600; font-size: 1.125rem;">423</div>
+                                    <div style="font-size: 0.75rem; color: #94a3b8;">
+                                        12% abnormal
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="status-badge status-warning">
+                                        <i class="fas fa-exclamation-triangle" style="margin-right: 0.25rem;"></i>
+                                        51
+                                    </span>
+                                </td>
+                                <td>
+                                    <div style="font-family: monospace; font-size: 0.875rem; color: #f1f5f9;">
+                                        PKG-2024-00123
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="font-size: 0.875rem; color: #94a3b8;">
+                                        15:42:23
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="fade-in" style="animation-delay: 0.05s;">
+                                <td>
+                                    <div style="display: flex; align-items: center;">
+                                        <div style="width: 12px; height: 12px; background: #0ea5e9; border-radius: 50%; margin-right: 0.5rem;"></div>
+                                        <span style="font-weight: 500;">Multi→30h</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="font-weight: 600; font-size: 1.125rem;">587</div>
+                                    <div style="font-size: 0.75rem; color: #94a3b8;">
+                                        8% abnormal
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="status-badge status-warning">
+                                        <i class="fas fa-exclamation-triangle" style="margin-right: 0.25rem;"></i>
+                                        47
+                                    </span>
+                                </td>
+                                <td>
+                                    <div style="font-family: monospace; font-size: 0.875rem; color: #f1f5f9;">
+                                        PKG-2024-00234
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="font-size: 0.875rem; color: #94a3b8;">
+                                        14:21:10
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="fade-in" style="animation-delay: 0.1s;">
+                                <td>
+                                    <div style="display: flex; align-items: center;">
+                                        <div style="width: 12px; height: 12px; background: #0ea5e9; border-radius: 50%; margin-right: 0.5rem;"></div>
+                                        <span style="font-weight: 500;">Pack→Preship >30h</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="font-weight: 600; font-size: 1.125rem;">312</div>
+                                    <div style="font-size: 0.75rem; color: #94a3b8;">
+                                        5% abnormal
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="status-badge status-success">
+                                        <i class="fas fa-check-circle" style="margin-right: 0.25rem;"></i>
+                                        16
+                                    </span>
+                                </td>
+                                <td>
+                                    <div style="font-family: monospace; font-size: 0.875rem; color: #f1f5f9;">
+                                        PKG-2024-00345
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="font-size: 0.875rem; color: #94a3b8;">
+                                        12:45:33
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="fade-in" style="animation-delay: 0.15s;">
+                                <td>
+                                    <div style="display: flex; align-items: center;">
+                                        <div style="width: 12px; height: 12px; background: #0ea5e9; border-radius: 50%; margin-right: 0.5rem;"></div>
+                                        <span style="font-weight: 500;">Preship→Ship (USA) >100h</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="font-weight: 600; font-size: 1.125rem;">89</div>
+                                    <div style="font-size: 0.75rem; color: #94a3b8;">
+                                        3% abnormal
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="status-badge status-success">
+                                        <i class="fas fa-check-circle" style="margin-right: 0.25rem;"></i>
+                                        3
+                                    </span>
+                                </td>
+                                <td>
+                                    <div style="font-family: monospace; font-size: 0.875rem; color: #f1f5f9;">
+                                        PKG-2024-00456
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="font-size: 0.875rem; color: #94a3b8;">
+                                        10:15:22
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="fade-in" style="animation-delay: 0.2s;">
+                                <td>
+                                    <div style="display: flex; align-items: center;">
+                                        <div style="width: 12px; height: 12px; background: #0ea5e9; border-radius: 50%; margin-right: 0.5rem;"></div>
+                                        <span style="font-weight: 500;">Abnormal locations Pick-Pack>30h</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="font-weight: 600; font-size: 1.125rem;">256</div>
+                                    <div style="font-size: 0.75rem; color: #94a3b8;">
+                                        15% abnormal
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="status-badge status-warning">
+                                        <i class="fas fa-exclamation-triangle" style="margin-right: 0.25rem;"></i>
+                                        38
+                                    </span>
+                                </td>
+                                <td>
+                                    <div style="font-family: monospace; font-size: 0.875rem; color: #f1f5f9;">
+                                        PKG-2024-00567
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="font-size: 0.875rem; color: #94a3b8;">
+                                        09:30:45
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="fade-in" style="animation-delay: 0.25s;">
+                                <td>
+                                    <div style="display: flex; align-items: center;">
+                                        <div style="width: 12px; height: 12px; background: #0ea5e9; border-radius: 50%; margin-right: 0.5rem;"></div>
+                                        <span style="font-weight: 500;">AB Problematic Pack-Ship>24h</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="font-weight: 600; font-size: 1.125rem;">180</div>
+                                    <div style="font-size: 0.75rem; color: #94a3b8;">
+                                        20% abnormal
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="status-badge status-warning">
+                                        <i class="fas fa-exclamation-triangle" style="margin-right: 0.25rem;"></i>
+                                        36
+                                    </span>
+                                </td>
+                                <td>
+                                    <div style="font-family: monospace; font-size: 0.875rem; color: #f1f5f9;">
+                                        PKG-2024-00678
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="font-size: 0.875rem; color: #94a3b8;">
+                                        08:15:10
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="card">
+                <h2 style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+                    <i class="fas fa-history" style="color: #0ea5e9;"></i>
+                    Recent Activity
+                </h2>
+                <div id="activityList">
+                    <!-- Demo activities -->
+                    <div class="activity-item fade-in">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                            <div style="flex: 1;">
+                                <div style="font-weight: 500; color: #f1f5f9; display: flex; align-items: center; margin-bottom: 0.5rem;">
+                                    <i class="fas fa-chart-line mr-2" style="color: #0ea5e9;"></i>
+                                    Analysis #24
+                                    <span class="status-badge status-success" style="font-size: 0.7rem; margin-left: 0.5rem; padding: 0.2rem 0.5rem;">
+                                        <i class="fas fa-chart-bar mr-1"></i>Details
+                                    </span>
+                                </div>
+                                <div style="font-size: 0.875rem; color: #94a3b8; margin-bottom: 0.5rem;">
+                                    <i class="far fa-clock mr-1"></i>Dec 17, 2024 14:30
+                                </div>
+                                <div style="font-size: 0.75rem; color: #10b981; display: flex; align-items: center; gap: 0.5rem;">
+                                    <i class="fas fa-mouse-pointer mr-1"></i>Click to view full details
+                                </div>
+                            </div>
+                            <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem;">
+                                <div style="font-weight: 600; font-size: 1.125rem; color: #0ea5e9;">
+                                    1,847
+                                </div>
+                                <div style="font-size: 0.875rem; color: #94a3b8;">
+                                    packages
+                                </div>
+                                <button class="btn btn-success btn-sm" onclick="exportDemoAnalysis(24)">
+                                    <i class="fas fa-download mr-1"></i>Export
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="activity-item fade-in" style="animation-delay: 0.1s;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                            <div style="flex: 1;">
+                                <div style="font-weight: 500; color: #f1f5f9; display: flex; align-items: center; margin-bottom: 0.5rem;">
+                                    <i class="fas fa-chart-line mr-2" style="color: #94a3b8;"></i>
+                                    Analysis #23
+                                </div>
+                                <div style="font-size: 0.875rem; color: #94a3b8; margin-bottom: 0.5rem;">
+                                    <i class="far fa-clock mr-1"></i>Dec 16, 2024 11:45
+                                </div>
+                                <div style="font-size: 0.75rem; color: #f59e0b;">
+                                    <i class="fas fa-info-circle mr-1"></i>Basic data only
+                                </div>
+                            </div>
+                            <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem;">
+                                <div style="font-weight: 600; font-size: 1.125rem; color: #0ea5e9;">
+                                    2,134
+                                </div>
+                                <div style="font-size: 0.875rem; color: #94a3b8;">
+                                    packages
+                                </div>
+                                <button class="btn btn-secondary btn-sm" onclick="exportBasicDemo(23)">
+                                    <i class="fas fa-file-export mr-1"></i>Export
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer style="background: rgba(30, 41, 59, 0.7); border-top: 1px solid #334155; padding: 1.5rem 0;">
+        <div class="container">
+            <div class="text-center text-tertiary text-sm">
+                <p>Analytics Platform v2.1.0 | Overdue Module</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        let chartInstance = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('=== DASHBOARD INITIALIZATION ===');
+            
+            // Language selector
+            const langSelect = document.getElementById('languageSelect');
+            if (langSelect) {
+                langSelect.addEventListener('change', function() {
+                    alert('Language changed to: ' + this.value + ' (Static demo)');
+                });
+            }
+            
+            // Initialize chart
+            initializeChart();
+            
+            // Setup file upload (demo)
+            setupFileUploadDemo();
+            
+            console.log('✓ Dashboard initialized (static version)');
+        });
+
+        // Initialize chart with demo data
+        function initializeChart() {
+            const canvas = document.getElementById('historyChart');
+            if (!canvas) return;
+
+            const ctx = canvas.getContext('2d');
+            
+            // Demo data
+            const labels = [];
+            const data = [];
+            const now = new Date();
+            
+            for (let i = 14; i >= 0; i--) {
+                const date = new Date(now);
+                date.setDate(date.getDate() - i);
+                labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+                // Generate realistic data with some variance
+                data.push(Math.floor(Math.random() * 400) + 800);
+            }
+            
+            // Create chart
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Package Volume',
+                        data: data,
+                        borderColor: '#8b5cf6',
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 3,
+                        pointRadius: 6,
+                        pointBackgroundColor: '#8b5cf6',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointHoverRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#cbd5e1',
+                                font: { size: 14 }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(30, 41, 59, 0.95)',
+                            titleColor: '#cbd5e1',
+                            bodyColor: '#cbd5e1',
+                            borderColor: '#8b5cf6',
+                            borderWidth: 1,
+                            padding: 12,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.parsed.y.toLocaleString()}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#94a3b8',
+                                maxRotation: 45,
+                                padding: 8
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#94a3b8',
+                                padding: 8,
+                                callback: function(value) {
+                                    return value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Refresh chart with new demo data
+        function refreshChart() {
+            if (chartInstance) {
+                // Generate new random data
+                const newData = chartInstance.data.datasets[0].data.map(() => 
+                    Math.floor(Math.random() * 400) + 800
+                );
+                chartInstance.data.datasets[0].data = newData;
+                chartInstance.update();
+                
+                showDemoNotification('Chart refreshed with new demo data', 'success');
+            }
+        }
+
+        // Setup file upload (demo version)
+        function setupFileUploadDemo() {
+            // Finished Abnormal
+            const finishedAbnZone = document.getElementById('finishedAbnZone');
+            const finishedAbnFile = document.getElementById('finishedAbnFile');
+            
+            if (finishedAbnZone && finishedAbnFile) {
+                finishedAbnZone.addEventListener('click', () => finishedAbnFile.click());
+                finishedAbnFile.addEventListener('change', (e) => handleFileDemo(e, 'finishedAbn'));
+            }
+            
+            // Problematic
+            const problematicZone = document.getElementById('problematicZone');
+            const problematicFile = document.getElementById('problematicFile');
+            
+            if (problematicZone && problematicFile) {
+                problematicZone.addEventListener('click', () => problematicFile.click());
+                problematicFile.addEventListener('change', (e) => handleFileDemo(e, 'problematic'));
+            }
+            
+            // Normal Files
+            const normalFilesZone = document.getElementById('normalFilesZone');
+            const normalFiles = document.getElementById('normalFiles');
+            
+            if (normalFilesZone && normalFiles) {
+                normalFilesZone.addEventListener('click', () => normalFiles.click());
+                normalFiles.addEventListener('change', (e) => handleMultipleFilesDemo(e));
+            }
+        }
+
+        // Handle single file upload (demo)
+        function handleFileDemo(event, type) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const preview = document.getElementById(type + 'Preview');
+            const countElement = document.getElementById(type + 'Count');
+            const zone = document.getElementById(type + 'Zone');
+            
+            if (preview) {
+                preview.innerHTML = `
+                    <div class="file-item">
+                        <div class="file-info">
+                            <i class="fas fa-file-excel file-icon"></i>
+                            <div class="file-name" title="${file.name}">${file.name}</div>
+                            <div class="file-size">${formatFileSize(file.size)}</div>
+                        </div>
+                        <button class="btn btn-sm btn-danger" onclick="removeFileDemo('${type}')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `;
+            }
+            
+            if (countElement) {
+                countElement.textContent = '1';
+                countElement.classList.remove('hidden');
+            }
+            
+            if (zone) {
+                zone.classList.add('active');
+            }
+            
+            showDemoNotification(`File "${file.name}" uploaded to ${type}`, 'success');
+        }
+
+        // Handle multiple files upload (demo)
+        function handleMultipleFilesDemo(event) {
+            const files = event.target.files;
+            const preview = document.getElementById('normalFilesPreview');
+            const countElement = document.getElementById('normalFilesCount');
+            const zone = document.getElementById('normalFilesZone');
+            
+            if (!files || files.length === 0) return;
+            
+            preview.innerHTML = '';
+            let excelCount = 0;
+            
+            Array.from(files).forEach(file => {
+                if (file.name.match(/\.(xlsx|xls)$/i)) {
+                    excelCount++;
+                    const fileElement = document.createElement('div');
+                    fileElement.className = 'file-item';
+                    fileElement.innerHTML = `
+                        <div class="file-info">
+                            <i class="fas fa-file-excel file-icon"></i>
+                            <div class="file-name" title="${file.name}">${file.name}</div>
+                            <div class="file-size">${formatFileSize(file.size)}</div>
+                        </div>
+                    `;
+                    preview.appendChild(fileElement);
+                }
+            });
+            
+            if (countElement) {
+                countElement.textContent = excelCount;
+                countElement.classList.remove('hidden');
+            }
+            
+            if (zone && excelCount > 0) {
+                zone.classList.add('active');
+            }
+            
+            showDemoNotification(`${excelCount} normal files uploaded`, 'success');
+        }
+
+        // Remove file (demo)
+        function removeFileDemo(type) {
+            const preview = document.getElementById(type + 'Preview');
+            const countElement = document.getElementById(type + 'Count');
+            const input = document.getElementById(type + 'File');
+            const zone = document.getElementById(type + 'Zone');
+            
+            if (preview) preview.innerHTML = '';
+            if (countElement) {
+                countElement.classList.add('hidden');
+                countElement.textContent = '0';
+            }
+            if (input) input.value = '';
+            if (zone) zone.classList.remove('active');
+            
+            showDemoNotification(`File removed from ${type}`, 'info');
+        }
+
+        // Clear all files
+        function clearAllFiles() {
+            ['finishedAbn', 'problematic', 'normalFiles'].forEach(type => {
+                removeFileDemo(type);
+            });
+            
+            showDemoNotification('All files cleared', 'success');
+        }
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Demo analysis function
+        function analyzeFilesDemo() {
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const loadingState = document.getElementById('loadingState');
+            const activeStatus = document.getElementById('activeStatus');
+            
+            // Disable button and show loading
+            if (analyzeBtn) analyzeBtn.disabled = true;
+            if (loadingState) loadingState.classList.remove('hidden');
+            if (activeStatus) activeStatus.textContent = 'Processing...';
+            
+            showDemoNotification('Starting demo analysis...', 'info');
+            
+            // Simulate analysis delay
+            setTimeout(() => {
+                // Re-enable button and hide loading
+                if (analyzeBtn) analyzeBtn.disabled = false;
+                if (loadingState) loadingState.classList.add('hidden');
+                if (activeStatus) activeStatus.textContent = 'Ready';
+                
+                showDemoNotification('Demo analysis completed successfully!', 'success');
+                
+                // Scroll to results
+                const resultsSection = document.getElementById('resultsSection');
+                if (resultsSection) {
+                    resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }, 2000);
+        }
+
+        // Export demo results
+        function exportDemoResults() {
+            const demoData = `Demo Analysis Results
+Generated: ${new Date().toISOString()}
+
+Category,Package Volume,After Abnormal,Oldest Package,Time
+Single→30h,423,51,PKG-2024-00123,15:42:23
+Multi→30h,587,47,PKG-2024-00234,14:21:10
+Pack→Preship >30h,312,16,PKG-2024-00345,12:45:33
+Preship→Ship (USA) >100h,89,3,PKG-2024-00456,10:15:22
+Abnormal locations Pick-Pack>30h,256,38,PKG-2024-00567,09:30:45
+AB Problematic Pack-Ship>24h,180,36,PKG-2024-00678,08:15:10
+
+Total Packages: 1,847
+Total Abnormal: 124
+Abnormal Rate: 6.7%
+
+--- 
+Static Demo Version
+Analytics Platform v2.1.0`;
+            
+            downloadFile(demoData, 'demo_results.csv', 'text/csv');
+            showDemoNotification('Demo results exported as CSV', 'success');
+        }
+
+        // Export demo analysis
+        function exportDemoAnalysis(analysisId) {
+            const demoData = `Analysis Export - Demo
+Analysis ID: ${analysisId}
+Analysis Time: ${new Date().toISOString()}
+Total Package Volume: 1,847
+
+This is a demo export for static GitHub Pages version.
+In a real application, this would export detailed Excel data.
+
+Features included in full version:
+- Detailed category breakdown
+- Excel file with multiple sheets
+- Charts and visualizations
+- Historical data comparison
+- Blacklist integration
+
+---
+Static Demo
+Analytics Platform`;
+            
+            downloadFile(demoData, `analysis_${analysisId}_demo.txt`, 'text/plain');
+            showDemoNotification(`Demo analysis #${analysisId} exported`, 'success');
+        }
+
+        // Export basic demo
+        function exportBasicDemo(analysisId) {
+            const demoData = `Basic Analysis Export - Demo
+Analysis ID: ${analysisId}
+Analysis Time: ${new Date().toISOString()}
+Total Package Volume: 2,134
+
+Note: This is a basic demo export.
+Detailed category data is not available in this demo.
+
+---
+Static Demo Version`;
+            
+            downloadFile(demoData, `basic_analysis_${analysisId}_demo.txt`, 'text/plain');
+            showDemoNotification(`Basic demo analysis #${analysisId} exported`, 'info');
+        }
+
+        // Download file utility
+        function downloadFile(content, filename, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Show demo notification
+        function showDemoNotification(message, type = 'info') {
+            const colors = {
+                info: { bg: '#0ea5e9', icon: 'info-circle' },
+                success: { bg: '#10b981', icon: 'check-circle' },
+                warning: { bg: '#f59e0b', icon: 'exclamation-triangle' },
+                error: { bg: '#ef4444', icon: 'times-circle' }
+            };
+            
+            const color = colors[type] || colors.info;
+            
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${color.bg};
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                z-index: 9999;
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                animation: slideIn 0.3s ease-out;
+                max-width: 400px;
+            `;
+            
+            notification.innerHTML = `
+                <i class="fas fa-${color.icon}" style="font-size: 1.25rem;"></i>
+                <div>${message}</div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Auto-remove after 3 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease-out forwards';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+            
+            // Add animations if not present
+            if (!document.querySelector('#notification-styles')) {
+                const style = document.createElement('style');
+                style.id = 'notification-styles';
+                style.textContent = `
+                    @keyframes slideIn {
+                        from { transform: translateX(100%); opacity: 0; }
+                        to { transform: translateX(0); opacity: 1; }
+                    }
+                    @keyframes slideOut {
+                        from { transform: translateX(0); opacity: 1; }
+                        to { transform: translateX(100%); opacity: 0; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+
+        // Make functions globally available
+        window.analyzeFilesDemo = analyzeFilesDemo;
+        window.clearAllFiles = clearAllFiles;
+        window.removeFileDemo = removeFileDemo;
+        window.refreshChart = refreshChart;
+        window.exportDemoResults = exportDemoResults;
+        window.exportDemoAnalysis = exportDemoAnalysis;
+        window.exportBasicDemo = exportBasicDemo;
+    </script>
+</body>
+</html>

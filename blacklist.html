@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Platform - Blacklist Management</title>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles2.css">
+    <style>
+        .page-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #334155;
+        }
+
+        @media (max-width: 768px) {
+            .page-navigation {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+        }
+
+        /* CSS переменные для совместимости */
+        :root {
+            --primary: #0ea5e9;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --bg-secondary: rgba(30, 41, 59, 0.7);
+            --border-color: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-tertiary: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <!-- Logo and Back Buttons -->
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <a href="dashboard.html" class="btn btn-outline-secondary btn-sm" title="Back to Dashboard">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <a href="index.html" class="btn btn-outline-secondary btn-sm" title="Back to Main Menu">
+                    <i class="fas fa-home"></i>
+                </a>
+                <div class="nav-brand">
+                    <div class="nav-logo">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <span>Analytics Platform</span>
+                </div>
+            </div>
+
+            <!-- Language Selector -->
+            <div>
+                <select id="languageSelect" class="form-control" style="width: auto; min-width: 120px;">
+                    <option value="en">🇺🇸 English</option>
+                    <option value="pl">🇵🇱 Polski</option>
+                    <option value="ru">🇷🇺 Русский</option>
+                </select>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="table-container">
+        <!-- Hero Section -->
+        <div class="hero-gradient">
+            <div class="container">
+                <h1 class="fade-in">Blacklist Management</h1>
+                <p class="text-secondary fade-in" style="max-width: 600px;">
+                    Manage blocked packages and tracking exceptions
+                </p>
+            </div>
+        </div>
+
+        <!-- Blacklist Content -->
+        <div class="container" style="padding: 2rem 0;">
+            <!-- Add to Blacklist Form -->
+            <div class="card mb-4">
+                <h2 style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+                    <i class="fas fa-plus-circle" style="color: #0ea5e9;"></i>
+                    Add to Blacklist
+                </h2>
+
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <div>
+                        <label class="form-label">Package ID</label>
+                        <input type="text" id="packageIdInput" class="form-control" placeholder="Enter package ID">
+                    </div>
+                    <div>
+                        <label class="form-label">Reason (Optional)</label>
+                        <input type="text" id="reasonInput" class="form-control" placeholder="Optional reason">
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="addToBlacklistDemo()">
+                    <i class="fas fa-plus mr-2"></i>
+                    Add to Blacklist
+                </button>
+            </div>
+
+            <!-- Search and Filters -->
+            <div class="card mb-4">
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div class="search-container">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" id="searchInput" class="form-control search-input"
+                               placeholder="Search by Package ID or Reason" oninput="filterBlacklistDemo()">
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="text-sm text-tertiary">
+                            <span id="totalCount">5</span> items
+                        </div>
+
+                        <select id="sortSelect" class="form-control" style="width: auto;" onchange="loadBlacklistDemo()">
+                            <option value="newest">Newest First</option>
+                            <option value="oldest">Oldest First</option>
+                            <option value="id">Package ID</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Blacklist Table -->
+            <div class="card">
+                <h2 style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+                    <i class="fas fa-list" style="color: #0ea5e9;"></i>
+                    Blacklist
+                </h2>
+
+                <!-- Table -->
+                <div id="blacklistTable">
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Package ID</th>
+                                    <th>Reason</th>
+                                    <th>Added At</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="blacklistTableBody">
+                                <!-- Demo blacklist items -->
+                                <tr class="fade-in">
+                                    <td>
+                                        <div style="font-family: monospace; font-weight: 600;">PKG-2024-00123</div>
+                                    </td>
+                                    <td>
+                                        <div class="text-tertiary">
+                                            Repeated delivery failures
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div style="font-size: 0.875rem; color: #94a3b8;">Dec 15, 2024 14:30</div>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-danger" onclick="removeFromBlacklistDemo('PKG-2024-00123')">
+                                            <i class="fas fa-trash mr-1"></i>Remove
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr class="fade-in" style="animation-delay: 0.1s;">
+                                    <td>
+                                        <div style="font-family: monospace; font-weight: 600;">PKG-2024-00345</div>
+                                    </td>
+                                    <td>
+                                        <div class="text-tertiary">
+                                            Damaged goods reported
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div style="font-size: 0.875rem; color: #94a3b8;">Dec 14, 2024 10:15</div>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-danger" onclick="removeFromBlacklistDemo('PKG-2024-00345')">
+                                            <i class="fas fa-trash mr-1"></i>Remove
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr class="fade-in" style="animation-delay: 0.2s;">
+                                    <td>
+                                        <div style="font-family: monospace; font-weight: 600;">PKG-2024-00567</div>
+                                    </td>
+                                    <td>
+                                        <div class="text-tertiary">
+                                            Invalid address
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div style="font-size: 0.875rem; color: #94a3b8;">Dec 13, 2024 16:45</div>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-danger" onclick="removeFromBlacklistDemo('PKG-2024-00567')">
+                                            <i class="fas fa-trash mr-1"></i>Remove
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr class="fade-in" style="animation-delay: 0.3s;">
+                                    <td>
+                                        <div style="font-family: monospace; font-weight: 600;">PKG-2024-00789</div>
+                                    </td>
+                                    <td>
+                                        <div class="text-tertiary text-italic">
+                                            No reason provided
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div style="font-size: 0.875rem; color: #94a3b8;">Dec 12, 2024 09:20</div>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-danger" onclick="removeFromBlacklistDemo('PKG-2024-00789')">
+                                            <i class="fas fa-trash mr-1"></i>Remove
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr class="fade-in" style="animation-delay: 0.4s;">
+                                    <td>
+                                        <div style="font-family: monospace; font-weight: 600;">PKG-2024-00901</div>
+                                    </td>
+                                    <td>
+                                        <div class="text-tertiary">
+                                            Customs clearance issues
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div style="font-size: 0.875rem; color: #94a3b8;">Dec 11, 2024 11:30</div>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-danger" onclick="removeFromBlacklistDemo('PKG-2024-00901')">
+                                            <i class="fas fa-trash mr-1"></i>Remove
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;">
+                        <div class="text-sm text-tertiary">
+                            Showing 1-5 of 5
+                        </div>
+
+                        <div class="pagination">
+                            <button id="prevPage" class="page-btn" disabled>
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button id="nextPage" class="page-btn" disabled>
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer style="background: rgba(30, 41, 59, 0.7); border-top: 1px solid #334155; padding: 1.5rem 0;">
+        <div class="container">
+            <div class="text-center text-tertiary text-sm">
+                <p>Analytics Platform v2.1.0 | Blacklist Module</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        let blacklistData = [
+            {
+                package_id: "PKG-2024-00123",
+                reason: "Repeated delivery failures",
+                added_at: "2024-12-15T14:30:00"
+            },
+            {
+                package_id: "PKG-2024-00345",
+                reason: "Damaged goods reported",
+                added_at: "2024-12-14T10:15:00"
+            },
+            {
+                package_id: "PKG-2024-00567",
+                reason: "Invalid address",
+                added_at: "2024-12-13T16:45:00"
+            },
+            {
+                package_id: "PKG-2024-00789",
+                reason: null,
+                added_at: "2024-12-12T09:20:00"
+            },
+            {
+                package_id: "PKG-2024-00901",
+                reason: "Customs clearance issues",
+                added_at: "2024-12-11T11:30:00"
+            }
+        ];
+
+        let filteredData = [...blacklistData];
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            loadBlacklistDemo();
+            
+            // Language selector
+            const langSelect = document.getElementById('languageSelect');
+            if (langSelect) {
+                langSelect.addEventListener('change', function() {
+                    alert('Language changed to: ' + this.value + ' (Static demo)');
+                });
+            }
+        });
+
+        // Загрузка черного списка (демо)
+        function loadBlacklistDemo() {
+            sortBlacklistDemo();
+            renderBlacklistTableDemo();
+        }
+
+        // Сортировка черного списка
+        function sortBlacklistDemo() {
+            const sortBy = document.getElementById('sortSelect').value;
+
+            switch(sortBy) {
+                case 'newest':
+                    filteredData.sort((a, b) => new Date(b.added_at) - new Date(a.added_at));
+                    break;
+                case 'oldest':
+                    filteredData.sort((a, b) => new Date(a.added_at) - new Date(b.added_at));
+                    break;
+                case 'id':
+                    filteredData.sort((a, b) => a.package_id.localeCompare(b.package_id));
+                    break;
+            }
+        }
+
+        // Фильтрация черного списка
+        function filterBlacklistDemo() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+            if (searchTerm) {
+                filteredData = blacklistData.filter(item =>
+                    item.package_id.toLowerCase().includes(searchTerm) ||
+                    (item.reason && item.reason.toLowerCase().includes(searchTerm))
+                );
+            } else {
+                filteredData = [...blacklistData];
+                sortBlacklistDemo();
+            }
+
+            renderBlacklistTableDemo();
+        }
+
+        // Отрисовка таблицы
+        function renderBlacklistTableDemo() {
+            const tbody = document.getElementById('blacklistTableBody');
+            tbody.innerHTML = '';
+
+            // Update total count
+            document.getElementById('totalCount').textContent = filteredData.length;
+
+            if (filteredData.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="text-align: center; padding: 2rem;">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">
+                                    <i class="fas fa-ban"></i>
+                                </div>
+                                <h3 style="margin-bottom: 0.5rem;">No Data</h3>
+                                <p class="text-tertiary">No packages match your search</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            filteredData.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.className = 'fade-in';
+                row.style.animationDelay = `${index * 0.1}s`;
+
+                row.innerHTML = `
+                    <td>
+                        <div style="font-family: monospace; font-weight: 600;">${item.package_id}</div>
+                    </td>
+                    <td>
+                        <div class="text-tertiary ${!item.reason ? 'text-italic' : ''}">
+                            ${item.reason || 'No reason provided'}
+                        </div>
+                    </td>
+                    <td>
+                        <div style="font-size: 0.875rem; color: #94a3b8;">${formatDateDemo(item.added_at)}</div>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-danger" onclick="removeFromBlacklistDemo('${item.package_id}')">
+                            <i class="fas fa-trash mr-1"></i>Remove
+                        </button>
+                    </td>
+                `;
+
+                tbody.appendChild(row);
+            });
+        }
+
+        // Добавление в черный список (демо)
+        function addToBlacklistDemo() {
+            const packageId = document.getElementById('packageIdInput').value.trim();
+            const reason = document.getElementById('reasonInput').value.trim();
+
+            if (!packageId) {
+                showDemoNotification('Package ID is required', 'error');
+                return;
+            }
+
+            // Проверяем, есть ли уже такой ID
+            const exists = blacklistData.some(item => item.package_id === packageId);
+            if (exists) {
+                showDemoNotification('Package ID already exists in blacklist', 'warning');
+                return;
+            }
+
+            // Добавляем новую запись
+            const newEntry = {
+                package_id: packageId,
+                reason: reason || null,
+                added_at: new Date().toISOString()
+            };
+
+            blacklistData.push(newEntry);
+            
+            // Очищаем поля ввода
+            document.getElementById('packageIdInput').value = '';
+            document.getElementById('reasonInput').value = '';
+            
+            // Обновляем таблицу
+            loadBlacklistDemo();
+            
+            showDemoNotification(`Package ${packageId} added to blacklist (Demo)`, 'success');
+        }
+
+        // Удаление из черного списка (демо)
+        function removeFromBlacklistDemo(packageId) {
+            if (!confirm(`Are you sure you want to remove ${packageId} from the blacklist?`)) {
+                return;
+            }
+
+            // Удаляем запись
+            const initialLength = blacklistData.length;
+            blacklistData = blacklistData.filter(item => item.package_id !== packageId);
+            
+            if (blacklistData.length < initialLength) {
+                showDemoNotification(`Package ${packageId} removed from blacklist (Demo)`, 'success');
+                loadBlacklistDemo();
+            } else {
+                showDemoNotification('Package not found in blacklist', 'error');
+            }
+        }
+
+        // Форматирование даты
+        function formatDateDemo(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Показать уведомление
+        function showDemoNotification(message, type = 'info') {
+            const colors = {
+                info: { bg: '#0ea5e9', icon: 'info-circle' },
+                success: { bg: '#10b981', icon: 'check-circle' },
+                warning: { bg: '#f59e0b', icon: 'exclamation-triangle' },
+                error: { bg: '#ef4444', icon: 'times-circle' }
+            };
+            
+            const color = colors[type] || colors.info;
+            
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${color.bg};
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                z-index: 9999;
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                animation: slideIn 0.3s ease-out;
+                max-width: 400px;
+            `;
+            
+            notification.innerHTML = `
+                <i class="fas fa-${color.icon}" style="font-size: 1.25rem;"></i>
+                <div>${message}</div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Auto-remove after 3 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease-out forwards';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+            
+            // Add animations if not present
+            if (!document.querySelector('#notification-styles')) {
+                const style = document.createElement('style');
+                style.id = 'notification-styles';
+                style.textContent = `
+                    @keyframes slideIn {
+                        from { transform: translateX(100%); opacity: 0; }
+                        to { transform: translateX(0); opacity: 1; }
+                    }
+                    @keyframes slideOut {
+                        from { transform: translateX(0); opacity: 1; }
+                        to { transform: translateX(100%); opacity: 0; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+
+        // Make functions globally available
+        window.addToBlacklistDemo = addToBlacklistDemo;
+        window.removeFromBlacklistDemo = removeFromBlacklistDemo;
+        window.filterBlacklistDemo = filterBlacklistDemo;
+        window.loadBlacklistDemo = loadBlacklistDemo;
+    </script>
+</body>
+</html>

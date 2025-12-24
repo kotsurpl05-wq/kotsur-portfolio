@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Platform - Main Dashboard</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/index.css">
+    
+    <style>
+        /* ОСНОВНЫЕ СТИЛИ ДЛЯ ДВУХКОЛОНОЧНОЙ СТРУКТУРЫ */
+        .navigation-grid-two-column {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            margin: 3rem 0;
+            padding: 0 1rem;
+        }
+        
+        /* Основные карточки - занимают всю ширину колонки */
+        .nav-card-main {
+            grid-column: span 1;
+            height: 100%;
+            min-height: 420px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Карточка Overdue - шире, выделенная */
+        .nav-card-overdue {
+            grid-column: span 2;
+            min-height: 380px;
+            background: linear-gradient(145deg, rgba(14, 165, 233, 0.1), rgba(30, 41, 59, 0.9));
+            border: 2px solid rgba(14, 165, 233, 0.3);
+        }
+        
+        /* Сетка для мини-карточек внутри двухколоночной структуры */
+        .mini-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .mini-card {
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 10px;
+            padding: 1rem;
+            border: 1px solid #334155;
+            transition: all 0.3s ease;
+        }
+        
+        .mini-card:hover {
+            border-color: #0ea5e9;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .mini-card-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(14, 165, 233, 0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.75rem;
+            color: #0ea5e9;
+        }
+        
+        .mini-card-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-bottom: 0.25rem;
+        }
+        
+        .mini-card-desc {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            line-height: 1.4;
+        }
+        
+        /* БОЛЕЕ КОМПАКТНЫЕ КАРТОЧКИ ДЛЯ 2-Х КОЛОНОК */
+        .compact-card {
+            padding: 1.75rem 1.5rem;
+            min-height: 360px;
+        }
+        
+        .compact-card .nav-icon {
+            width: 70px;
+            height: 70px;
+            font-size: 1.75rem;
+            margin-bottom: 1.25rem;
+        }
+        
+        .compact-card .nav-title {
+            font-size: 1.4rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .compact-card .nav-desc {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 1.25rem;
+        }
+        
+        .compact-card .nav-stats {
+            margin-top: 1rem;
+            padding-top: 0.75rem;
+        }
+        
+        /* СТИЛИ ДЛЯ РАЗДЕЛЕННЫХ СЕКЦИЙ */
+        .module-section {
+            margin-bottom: 3rem;
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #334155;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .section-title i {
+            color: #0ea5e9;
+        }
+        
+        .section-subtitle {
+            font-size: 0.9rem;
+            color: #94a3b8;
+        }
+        
+        /* БЫСТРЫЙ ДОСТУП - МИНИ КАРТОЧКИ */
+        .quick-access-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .quick-access-card {
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 10px;
+            padding: 1.25rem;
+            border: 1px solid #334155;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-align: center;
+        }
+        
+        .quick-access-card:hover {
+            border-color: #0ea5e9;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(14, 165, 233, 0.2);
+        }
+        
+        .quick-access-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(14, 165, 233, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            color: #0ea5e9;
+            font-size: 1.5rem;
+        }
+        
+        .quick-access-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-bottom: 0.25rem;
+        }
+        
+        .quick-access-desc {
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+        
+        /* ДОПОЛНИТЕЛЬНЫЕ СТИЛИ ДЛЯ УЛУЧШЕНИЯ */
+        .feature-highlight {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: #1e293b;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            animation: pulse 2s infinite;
+        }
+        
+        .stats-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.2rem 0.6rem;
+            background: rgba(16, 185, 129, 0.1);
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #10b981;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* АНИМАЦИИ */
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .nav-card {
+            animation: slideUp 0.6s ease-out forwards;
+            opacity: 0;
+        }
+        
+        .nav-card-overdue { animation-delay: 0.1s; }
+        .nav-card:nth-child(2) { animation-delay: 0.2s; }
+        .nav-card:nth-child(3) { animation-delay: 0.3s; }
+        .quick-access-card { animation: slideUp 0.5s ease-out forwards; opacity: 0; }
+        .quick-access-card:nth-child(1) { animation-delay: 0.4s; }
+        .quick-access-card:nth-child(2) { animation-delay: 0.5s; }
+        .quick-access-card:nth-child(3) { animation-delay: 0.6s; }
+        .quick-access-card:nth-child(4) { animation-delay: 0.7s; }
+        
+        /* АДАПТИВНОСТЬ */
+        @media (max-width: 1200px) {
+            .quick-access-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .nav-card-overdue {
+                grid-column: span 2;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .navigation-grid-two-column {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-card-overdue,
+            .nav-card-main {
+                grid-column: span 1;
+            }
+            
+            .mini-cards-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .quick-access-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            
+            .compact-card {
+                padding: 1.5rem 1rem;
+                min-height: auto;
+            }
+        }
+        
+        /* СТИЛИ ДЛЯ РАЗДЕЛЕНИЯ МОДУЛЕЙ ПО ТИПАМ */
+        .analytics-modules {
+            background: rgba(14, 165, 233, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(14, 165, 233, 0.1);
+        }
+        
+        .quality-modules {
+            background: rgba(16, 185, 129, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(16, 185, 129, 0.1);
+        }
+        
+        .upcoming-modules {
+            background: rgba(168, 85, 247, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(168, 85, 247, 0.1);
+        }
+        
+        /* ИКОНКИ СТАТУСА В УГЛУ */
+        .status-corner {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            z-index: 2;
+        }
+        
+        .status-live {
+            background: #10b981;
+            color: white;
+            box-shadow: 0 3px 10px rgba(16, 185, 129, 0.3);
+        }
+        
+        .status-beta {
+            background: #d97706;
+            color: white;
+            box-shadow: 0 3px 10px rgba(245, 158, 11, 0.3);
+        }
+        
+        .status-dev {
+            background: #7c3aed;
+            color: white;
+            box-shadow: 0 3px 10px rgba(168, 85, 247, 0.3);
+        }
+
+        /* CSS переменные для совместимости */
+        :root {
+            --border-radius: 10px;
+            --border-radius-lg: 12px;
+            --border-color: #334155;
+            --color-primary: #0ea5e9;
+            --color-success: #10b981;
+            --color-warning: #f59e0b;
+            --color-warning-dark: #d97706;
+            --color-info-dark: #7c3aed;
+            --color-danger: #ef4444;
+            --color-info: #0ea5e9;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-tertiary: #94a3b8;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="main-page-body">
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <!-- Logo and Back Button -->
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <div class="nav-brand">
+                    <div class="nav-logo">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <span>Analytics Platform</span>
+                </div>
+            </div>
+            
+            <!-- Language Selector -->
+            <div>
+                <select id="languageSelect" class="form-control" style="width: auto; min-width: 120px;">
+                    <option value="en">🇺🇸 English</option>
+                    <option value="pl">🇵🇱 Polski</option>
+                    <option value="ru">🇷🇺 Русский</option>
+                </select>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="hero-gradient">
+            <div class="floating-elements">
+                <div class="floating-element"></div>
+                <div class="floating-element"></div>
+                <div class="floating-element"></div>
+                <div class="floating-element"></div>
+            </div>
+            
+            <div class="container">
+                <!-- Logo & Title -->
+                <div class="main-logo">
+                    <i class="fas fa-tachometer-alt"></i>
+                </div>
+
+                <h1>Analytics Platform Dashboard</h1>
+                <p class="text-secondary">
+                    Comprehensive analytics platform for logistics and quality control
+                </p>
+
+                <!-- QUICK ACCESS SECTION -->
+                <div class="module-section">
+                    <div class="section-header">
+                        <div>
+                            <h2 class="section-title">
+                                <i class="fas fa-bolt"></i>
+                                Quick Access
+                            </h2>
+                            <div class="section-subtitle">
+                                Launch analysis modules directly
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="quick-access-grid">
+                        <!-- Overdue Analysis -->
+                        <div class="quick-access-card" onclick="navigateTo('overdue')">
+                            <div class="quick-access-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="quick-access-title">Overdue</div>
+                            <div class="quick-access-desc">Package tracking & Excel analysis</div>
+                            <div class="stats-badge">
+                                <i class="fas fa-star"></i> Main
+                            </div>
+                        </div>
+                        
+                        <!-- 2nd Sorting Report -->
+                        <div class="quick-access-card" onclick="navigateTo('second_sorting')">
+                            <div class="quick-access-icon">
+                                <i class="fas fa-sort-amount-down"></i>
+                            </div>
+                            <div class="quick-access-title">2nd Sorting</div>
+                            <div class="quick-access-desc">Quality control & DPMO reports</div>
+                            <div class="stats-badge" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+                                <i class="fas fa-rocket"></i> New
+                            </div>
+                        </div>
+                        
+                        <!-- DR Report -->
+                        <div class="quick-access-card" onclick="navigateTo('dr_report')">
+                            <div class="quick-access-icon">
+                                <i class="fas fa-file-contract"></i>
+                            </div>
+                            <div class="quick-access-title">DR Report</div>
+                            <div class="quick-access-desc">Package exception analysis</div>
+                            <div class="stats-badge" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">
+                                <i class="fas fa-exclamation-triangle"></i> Quality
+                            </div>
+                        </div>
+                        
+                        <!-- History & Reports -->
+                        <div class="quick-access-card" onclick="navigateTo('history')">
+                            <div class="quick-access-icon">
+                                <i class="fas fa-history"></i>
+                            </div>
+                            <div class="quick-access-title">History</div>
+                            <div class="quick-access-desc">Past analyses & reports</div>
+                            <div class="stats-badge" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+                                <i class="fas fa-database"></i> Archive
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MAIN MODULES SECTION - TWO COLUMN LAYOUT -->
+                <div class="module-section analytics-modules">
+                    <div class="section-header">
+                        <div>
+                            <h2 class="section-title">
+                                <i class="fas fa-chart-bar"></i>
+                                Analytics Modules
+                            </h2>
+                            <div class="section-subtitle">
+                                Full-featured analytics tools with export capabilities
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="navigation-grid-two-column">
+                        <!-- Overdue Analysis - Main Featured Card -->
+                        <div class="nav-card nav-card-overdue" onclick="navigateTo('overdue')">
+                            <div class="status-corner status-live" title="Live & Stable">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            
+                            <div class="nav-badge badge-main">
+                                <i class="fas fa-crown"></i>
+                                Flagship Module
+                            </div>
+                            
+                            <div class="nav-icon">
+                                <i class="fas fa-chart-network"></i>
+                            </div>
+                            
+                            <h3 class="nav-title">Overdue Analysis</h3>
+                            
+                            <p class="nav-desc">
+                                Complete package lifecycle analysis with multi-file Excel import, real-time tracking, and detailed reporting. Supports 3 file types with 7+ analytics categories.
+                            </p>
+                            
+                            <!-- Mini Features Grid -->
+                            <div class="mini-cards-grid">
+                                <div class="mini-card">
+                                    <div class="mini-card-icon">
+                                        <i class="fas fa-file-excel"></i>
+                                    </div>
+                                    <div class="mini-card-title">Excel Import/Export</div>
+                                    <div class="mini-card-desc">Multi-sheet Excel reports</div>
+                                </div>
+                                
+                                <div class="mini-card">
+                                    <div class="mini-card-icon">
+                                        <i class="fas fa-chart-pie"></i>
+                                    </div>
+                                    <div class="mini-card-title">7+ Analytics</div>
+                                    <div class="mini-card-desc">Detailed category breakdown</div>
+                                </div>
+                                
+                                <div class="mini-card">
+                                    <div class="mini-card-icon">
+                                        <i class="fas fa-history"></i>
+                                    </div>
+                                    <div class="mini-card-title">History Tracking</div>
+                                    <div class="mini-card-desc">Past analysis comparison</div>
+                                </div>
+                                
+                                <div class="mini-card">
+                                    <div class="mini-card-icon">
+                                        <i class="fas fa-bell"></i>
+                                    </div>
+                                    <div class="mini-card-title">Real-time Alerts</div>
+                                    <div class="mini-card-desc">Immediate notifications</div>
+                                </div>
+                            </div>
+                            
+                            <div class="nav-action" style="margin-top: 1.5rem;">
+                                <button class="btn btn-primary btn-nav">
+                                    <i class="fas fa-play-circle"></i>
+                                    Launch Analysis
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- 2nd Sorting Report -->
+                        <div class="nav-card nav-card-main compact-card" onclick="navigateTo('second_sorting')">
+                            <div class="status-corner status-beta" title="New & Updated">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            
+                            <div class="nav-badge badge-success">
+                                <i class="fas fa-filter"></i>
+                                Quality Module
+                            </div>
+                            
+                            <div class="nav-icon">
+                                <i class="fas fa-sort-amount-down"></i>
+                            </div>
+                            
+                            <h3 class="nav-title">2nd Sorting Report</h3>
+                            
+                            <p class="nav-desc">
+                                Advanced quality control analysis with DPMO calculation, shift-based reporting, exception tracking, and PDF/Excel export capabilities.
+                            </p>
+                            
+                            <div class="nav-stats">
+                                <div class="stat-item">
+                                    <div class="stat-value">DPMO</div>
+                                    <div class="stat-label">Quality Metric</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">Shift</div>
+                                    <div class="stat-label">Analysis</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">PDF</div>
+                                    <div class="stat-label">Export</div>
+                                </div>
+                            </div>
+                            
+                            <div class="nav-action">
+                                <button class="btn btn-success btn-nav">
+                                    <i class="fas fa-chart-bar"></i>
+                                    Generate Report
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- UPCOMING MODULES SECTION -->
+                <div class="module-section upcoming-modules">
+                    <div class="section-header">
+                        <div>
+                            <h2 class="section-title">
+                                <i class="fas fa-clock"></i>
+                                Upcoming Modules
+                            </h2>
+                            <div class="section-subtitle">
+                                New features in development
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="navigation-grid-two-column">
+                        <!-- Future Module 1 -->
+                        <div class="nav-card nav-card-main compact-card template" onclick="showComingSoon('predictive_analytics')">
+                            <div class="status-corner status-dev" title="In Development">
+                                <i class="fas fa-code"></i>
+                            </div>
+                            
+                            <div class="nav-badge badge-template">
+                                <i class="fas fa-robot"></i>
+                                AI Module
+                            </div>
+                            
+                            <div class="nav-icon">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            
+                            <h3 class="nav-title">Predictive Analytics</h3>
+                            
+                            <p class="nav-desc">
+                                AI-powered forecasting and trend prediction for package delays and quality issues. Machine learning models for proactive management.
+                            </p>
+                            
+                            <div style="margin-top: auto; padding-top: 1rem; border-top: 1px solid #334155;">
+                                <div class="template-warning" style="margin: 0;">
+                                    <i class="fas fa-clock"></i>
+                                    Estimated: Q2 2024
+                                </div>
+                            </div>
+                            
+                            <div class="nav-action" style="margin-top: 1rem;">
+                                <button class="btn btn-info btn-nav">
+                                    <i class="fas fa-eye"></i>
+                                    View Roadmap
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Future Module 2 -->
+                        <div class="nav-card nav-card-main compact-card template" onclick="showComingSoon('real_time_monitoring')">
+                            <div class="status-corner status-dev" title="Planned">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                            
+                            <div class="nav-badge badge-template">
+                                <i class="fas fa-desktop"></i>
+                                Monitoring
+                            </div>
+                            
+                            <div class="nav-icon">
+                                <i class="fas fa-tv"></i>
+                            </div>
+                            
+                            <h3 class="nav-title">Real-time Dashboard</h3>
+                            
+                            <p class="nav-desc">
+                                Live monitoring dashboard with real-time metrics, alerts, and interactive visualizations for operational oversight.
+                            </p>
+                            
+                            <div style="margin-top: auto; padding-top: 1rem; border-top: 1px solid #334155;">
+                                <div class="template-warning" style="margin: 0;">
+                                    <i class="fas fa-clock"></i>
+                                    Estimated: Q3 2024
+                                </div>
+                            </div>
+                            
+                            <div class="nav-action" style="margin-top: 1rem;">
+                                <button class="btn btn-info btn-nav">
+                                    <i class="fas fa-bullhorn"></i>
+                                    Notify Me
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SYSTEM STATUS & INFO -->
+                <div class="info-section">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                        <!-- System Status -->
+                        <div style="background: rgba(30, 41, 59, 0.7); padding: 1.25rem; border-radius: 10px; border: 1px solid #334155;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                                <div style="width: 10px; height: 10px; background: #10b981; border-radius: 50%; animation: pulse 2s infinite;"></div>
+                                <span style="font-weight: 600;">System Status</span>
+                            </div>
+                            <div style="font-size: 0.9rem; color: #94a3b8;">
+                                All modules operational
+                            </div>
+                            <div style="display: flex; gap: 1rem; margin-top: 0.75rem;">
+                                <div>
+                                    <div style="font-size: 0.75rem; color: #94a3b8;">Uptime</div>
+                                    <div style="font-weight: 600; color: #10b981;">99.8%</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 0.75rem; color: #94a3b8;">Response</div>
+                                    <div style="font-weight: 600; color: #0ea5e9;">~120ms</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Recent Activity -->
+                        <div style="background: rgba(30, 41, 59, 0.7); padding: 1.25rem; border-radius: 10px; border: 1px solid #334155;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                                <i class="fas fa-history" style="color: #0ea5e9;"></i>
+                                <span style="font-weight: 600;">Recent Activity</span>
+                            </div>
+                            <div style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 0.5rem;">
+                                <i class="fas fa-check-circle" style="color: #10b981; margin-right: 0.5rem;"></i>
+                                2nd Sorting Report updated
+                            </div>
+                            <div style="font-size: 0.8rem; color: #94a3b8;">
+                                Last 24 hours • v2.1.0
+                            </div>
+                        </div>
+                        
+                        <!-- Support & Resources -->
+                        <div style="background: rgba(30, 41, 59, 0.7); padding: 1.25rem; border-radius: 10px; border: 1px solid #334155;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                                <i class="fas fa-life-ring" style="color: #0ea5e9;"></i>
+                                <span style="font-weight: 600;">Support</span>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                <a href="#" style="color: #94a3b8; text-decoration: none; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem;">
+                                    <i class="fas fa-question-circle"></i>
+                                    Documentation
+                                </a>
+                                <a href="#" style="color: #94a3b8; text-decoration: none; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem;">
+                                    <i class="fas fa-envelope"></i>
+                                    Contact Support
+                                </a>
+                                <a href="#" style="color: #94a3b8; text-decoration: none; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem;">
+                                    <i class="fas fa-bug"></i>
+                                    Report Issue
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="info-text">
+                        <i class="fas fa-info-circle"></i>
+                        Analytics Platform v2.1.0 | All rights reserved
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <p style="margin-bottom: 0.5rem;">© 2024 Analytics Platform. All rights reserved.</p>
+                    <p style="font-size: 0.75rem; color: #94a3b8;">
+                        Powered by Python, Flask, Chart.js
+                    </p>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <a href="#" style="color: #94a3b8; text-decoration: none; font-size: 0.875rem;">
+                        <i class="fab fa-github"></i>
+                    </a>
+                    <a href="#" style="color: #94a3b8; text-decoration: none; font-size: 0.875rem;">
+                        <i class="fab fa-linkedin"></i>
+                    </a>
+                    <a href="#" style="color: #94a3b8; text-decoration: none; font-size: 0.875rem;">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('=== MAIN MENU INITIALIZATION ===');
+            
+            // Language selector (статический, без перезагрузки)
+            const langSelect = document.getElementById('languageSelect');
+            if (langSelect) {
+                langSelect.addEventListener('change', function() {
+                    const selectedLang = this.value;
+                    alert('Language changed to: ' + selectedLang + ' (Static demo)');
+                });
+            }
+            
+            // Load system statistics
+            loadSystemStats();
+            
+            // Add hover effects
+            setupHoverEffects();
+            
+            console.log('✓ Main menu initialized (two-column layout)');
+        });
+        
+        function navigateTo(page) {
+            const routes = {
+                'overdue': 'dashboard.html',
+                'second_sorting': 'second-sorting.html',
+                'dr_report': 'dr-report.html',
+                'history': 'history.html'
+            };
+
+            if (routes[page]) {
+                window.location.href = routes[page];
+            } else {
+                showComingSoon(page);
+            }
+        }
+        
+        function loadSystemStats() {
+            // Демо статистика
+            console.log('Loading system stats...');
+        }
+        
+        function setupHoverEffects() {
+            // Добавляем эффекты при наведении на карточки
+            const cards = document.querySelectorAll('.nav-card, .quick-access-card');
+            cards.forEach((card, index) => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-8px)';
+                    this.style.boxShadow = '0 15px 30px rgba(0, 0, 0, 0.3)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
+                });
+            });
+        }
+        
+        function showComingSoon(moduleName) {
+            const moduleTitles = {
+                'predictive_analytics': 'Predictive Analytics',
+                'real_time_monitoring': 'Real-time Dashboard'
+            };
+            
+            const title = moduleTitles[moduleName] || 'New Module';
+            
+            // Создаем уведомление
+            const notification = document.createElement('div');
+            notification.className = 'coming-soon-notification';
+            notification.innerHTML = `
+                <div style="display: flex; align-items: flex-start; gap: 1rem; padding: 1.25rem; background: rgba(30, 41, 59, 0.95); border-radius: 12px; border-left: 4px solid #0ea5e9; max-width: 450px; backdrop-filter: blur(10px); border: 1px solid #334155;">
+                    <div style="width: 50px; height: 50px; background: rgba(168, 85, 247, 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #0ea5e9; font-size: 1.5rem;">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 700; margin-bottom: 0.5rem; color: #f1f5f9;">${title}</div>
+                        <div style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 1rem;">
+                            This module is currently in development and will be available soon.
+                        </div>
+                        <div style="display: flex; gap: 0.75rem;">
+                            <button onclick="subscribeToUpdates('${moduleName}')" style="padding: 0.5rem 1rem; background: #0ea5e9; color: white; border: none; border-radius: 6px; font-size: 0.85rem; cursor: pointer;">
+                                <i class="fas fa-bell mr-1"></i> Notify Me
+                            </button>
+                            <button onclick="this.parentElement.parentElement.parentElement.remove()" style="padding: 0.5rem 1rem; background: transparent; color: #94a3b8; border: 1px solid #334155; border-radius: 6px; font-size: 0.85rem; cursor: pointer;">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Стили для уведомления
+            notification.style.cssText = `
+                position: fixed;
+                top: 100px;
+                right: 20px;
+                z-index: 9999;
+                animation: slideInRight 0.4s ease-out;
+            `;
+            
+            // Добавляем стили для анимации
+            if (!document.querySelector('#notification-animation')) {
+                const style = document.createElement('style');
+                style.id = 'notification-animation';
+                style.textContent = `
+                    @keyframes slideInRight {
+                        from {
+                            transform: translateX(100%);
+                            opacity: 0;
+                        }
+                        to {
+                            transform: translateX(0);
+                            opacity: 1;
+                        }
+                    }
+                    
+                    @keyframes pulse {
+                        0%, 100% {
+                            opacity: 1;
+                            transform: scale(1);
+                        }
+                        50% {
+                            opacity: 0.7;
+                            transform: scale(1.05);
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            // Удаляем старое уведомление если есть
+            const oldNotification = document.querySelector('.coming-soon-notification');
+            if (oldNotification) oldNotification.remove();
+            
+            document.body.appendChild(notification);
+            
+            // Автоматическое удаление через 8 секунд
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.style.animation = 'slideInRight 0.4s ease-out reverse forwards';
+                    setTimeout(() => {
+                        if (notification.parentElement) notification.remove();
+                    }, 400);
+                }
+            }, 8000);
+        }
+        
+        function subscribeToUpdates(moduleName) {
+            // Демо логика подписки
+            alert('You will be notified when this module is released! (Demo)');
+            
+            // Закрываем уведомление
+            const notification = document.querySelector('.coming-soon-notification');
+            if (notification) notification.remove();
+        }
+    </script>
+</body>
+</html>
