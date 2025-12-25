@@ -1,7 +1,7 @@
 # 🏭 Warehouse Analytics Dashboard
 
-🌐 **Live Demo:** [https://username.github.io/warehouse-analytics](https://username.github.io/warehouse-analytics)
-
+🌐 **Live Demo:** [https://username.github.io/warehouse-analytics]([https://username.github.io/warehouse-analytics](https://kotsurpl05-wq.github.io/kotsur-portfolio/))
+🌐 **Live Demo:** 
 ## 📊 Project Overview
 A professional web dashboard for warehouse data analysis and automated reporting. 
 Transforms raw Excel data into actionable insights for inventory management, 
