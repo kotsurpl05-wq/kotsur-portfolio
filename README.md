@@ -1,7 +1,6 @@
 # 🏭 Warehouse Analytics Dashboard
 
 🌐 **Live Demo:** https://kotsurpl05-wq.github.io/kotsur-portfolio/
-🌐 **Live Demo:** 
 ## 📊 Project Overview
 A professional web dashboard for warehouse data analysis and automated reporting. 
 Transforms raw Excel data into actionable insights for inventory management, 
